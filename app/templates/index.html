@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}仪表盘 — AI 网页游戏工厂{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="hero">
+        <h1>欢迎回来，{{ current_user.username }} 👋</h1>
+        <p class="hero-subtitle">你的 AI 网页游戏工厂已就绪</p>
+    </div>
+
+    <div class="stats-cards">
+        <div class="stat-card">
+            <div class="stat-icon">🎮</div>
+            <div class="stat-value">{{ game_count }}</div>
+            <div class="stat-label">已生成游戏</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">💬</div>
+            <div class="stat-value">{{ conv_count }}</div>
+            <div class="stat-label">对话记录</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🧑‍💻</div>
+            <div class="stat-value">{{ current_user.role }}</div>
+            <div class="stat-label">当前角色</div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <a href="{{ url_for('chat.index') }}" class="action-card">
+            <span class="action-icon">💬</span>
+            <h3>AI 对话</h3>
+            <p>与 AI 助手交流，获取建议和帮助</p>
+        </a>
+        <a href="{{ url_for('game.create') }}" class="action-card">
+            <span class="action-icon">✨</span>
+            <h3>生成游戏</h3>
+            <p>用自然语言描述，AI 帮你生成 HTML5 小游戏</p>
+        </a>
+        <a href="{{ url_for('game.list_games') }}" class="action-card">
+            <span class="action-icon">📂</span>
+            <h3>游戏大厅</h3>
+            <p>浏览和试玩你生成的所有游戏</p>
+        </a>
+    </div>
+
+    {% if recent_games %}
+    <div class="section">
+        <h2>最近生成的游戏</h2>
+        <div class="game-grid">
+            {% for game in recent_games %}
+            <div class="game-card">
+                <div class="game-card-icon">🎮</div>
+                <div class="game-card-info">
+                    <h4>{{ game.title }}</h4>
+                    <span class="game-version">v{{ game.version }}</span>
+                    <span class="game-date">{{ game.created_at.strftime('%m-%d %H:%M') }}</span>
+                </div>
+                <a href="{{ url_for('game.play', game_id=game.id) }}" class="btn btn-primary btn-sm">试玩</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

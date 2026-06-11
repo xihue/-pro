@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI 网页游戏工厂{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('main.index') }}" class="nav-brand">🎮 AI 游戏工厂</a>
+            <div class="nav-links">
+                <a href="{{ url_for('main.index') }}" class="nav-link">🏠 首页</a>
+                <a href="{{ url_for('chat.index') }}" class="nav-link">💬 AI 对话</a>
+                <a href="{{ url_for('game.create') }}" class="nav-link">✨ 生成游戏</a>
+                <a href="{{ url_for('game.list_games') }}" class="nav-link">📂 游戏大厅</a>
+            </div>
+            <div class="nav-user">
+                <span class="nav-username">{{ current_user.username }}</span>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-sm">退出</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="footer">
+        <p>© 2026 AI Personal Agent V1 — 网页游戏工厂</p>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

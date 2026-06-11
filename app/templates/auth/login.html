@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 — AI 网页游戏工厂</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .auth-container {
+            max-width: 400px;
+            margin: 80px auto;
+            padding: 40px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            text-align: center;
+        }
+        .auth-container h1 { margin-top: 0; font-size: 28px; }
+        .auth-container .subtitle { color: #888; margin-bottom: 30px; }
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #555;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+        .remember-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 8px;
+            margin-bottom: 16px;
+        }
+        .btn-login:hover { background: #1a56db; }
+        .auth-link { font-size: 14px; color: #888; }
+        .auth-link a { color: #2563eb; }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h1>🎮 AI 游戏工厂</h1>
+        <p class="subtitle">登录你的账户</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" name="username" placeholder="输入用户名" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" name="password" placeholder="输入密码" required>
+            </div>
+            <div class="remember-row">
+                <input type="checkbox" name="remember" id="remember">
+                <label for="remember">记住我</label>
+            </div>
+            <button type="submit" class="btn-login">登 录</button>
+        </form>
+
+        <p class="auth-link">还没有账户？<a href="{{ url_for('auth.register') }}">立即注册</a></p>
+    </div>
+</body>
+</html>

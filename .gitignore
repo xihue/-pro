@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environment (contains API keys)
+.env
+
+# Database (contains user data)
+instance/
+
+# Generated games (user's own creations)
+storage/games/*
+!storage/games/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/

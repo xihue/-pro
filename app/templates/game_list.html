@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}游戏大厅 — AI 网页游戏工厂{% endblock %}
+
+{% block head %}
+<style>
+.game-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.game-list-header h2 { margin: 0; }
+
+.game-grid-large {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.game-card-large {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.game-card-large:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+.game-card-large .game-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.game-card-large .game-icon {
+    font-size: 36px;
+}
+.game-card-large .game-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+.game-card-large .game-version {
+    font-size: 12px;
+    color: #888;
+}
+.game-card-large .game-desc {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.game-card-large .game-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #f0f2f5;
+    padding-top: 12px;
+}
+.game-card-large .game-date {
+    font-size: 12px;
+    color: #999;
+}
+.game-card-large .game-card-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-state h3 { margin-bottom: 8px; color: #666; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="game-list-container">
+    <div class="game-list-header">
+        <h2>📂 游戏大厅</h2>
+        <a href="{{ url_for('game.create') }}" class="btn btn-primary">+ 生成新游戏</a>
+    </div>
+
+    {% if games %}
+    <div class="game-grid-large">
+        {% for game in games %}
+        <div class="game-card-large">
+            <div class="game-card-header">
+                <span class="game-icon">
+                    {% if game.status == 'completed' %}🎮
+                    {% elif game.status == 'generating' %}⏳
+                    {% else %}❌{% endif %}
+                </span>
+                <div>
+                    <h3 class="game-title">{{ game.title }}</h3>
+                    <span class="game-version">v{{ game.version }}</span>
+                </div>
+            </div>
+            <div class="game-desc">{{ game.description }}</div>
+            <div class="game-card-footer">
+                <span class="game-date">{{ game.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                <div class="game-card-actions">
+                    {% if game.status == 'completed' %}
+                    <a href="{{ url_for('game.play', game_id=game.id) }}" class="btn btn-primary btn-sm">▶ 试玩</a>
+                    {% endif %}
+                    <button class="btn btn-sm" onclick="deleteGame({{ game.id }})" style="color: #dc2626;">🗑</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🎮</div>
+        <h3>还没有生成任何游戏</h3>
+        <p>去 <a href="{{ url_for('game.create') }}">生成游戏</a> 页面创建你的第一个游戏吧！</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function deleteGame(id) {
+        if (!confirm('确定要删除这个游戏吗？')) return;
+
+        try {
+            const resp = await fetch('/api/games/' + id, { method: 'DELETE' });
+            const data = await resp.json();
+            if (data.ok) {
+                window.location.reload();
+            } else {
+                alert('删除失败');
+            }
+        } catch(e) {
+            alert('请求失败：' + e.message);
+        }
+    }
+</script>
+{% endblock %}

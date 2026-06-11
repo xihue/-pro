@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}{{ game.title }} — 试玩{% endblock %}
+
+{% block head %}
+<style>
+.game-play-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+.game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.game-header h2 { margin: 0; }
+.game-meta { color: #888; font-size: 14px; }
+.game-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.game-frame-wrapper {
+    width: 100%;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.game-frame-wrapper iframe {
+    width: 100%;
+    height: 80vh;
+    min-height: 500px;
+    max-height: 900px;
+    border: none;
+    display: block;
+}
+.game-info {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+.game-info h3 { margin-top: 0; }
+.info-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-size: 14px;
+    color: #666;
+}
+.info-row span strong { color: var(--text-color); }
+
+.btn-fullscreen {
+    padding: 8px 16px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.btn-fullscreen:hover { background: #f8fafc; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="game-play-container">
+    <div class="game-header">
+        <div>
+            <h2>🎮 {{ game.title }}</h2>
+            <div class="game-meta">版本 v{{ game.version }} · 生成于 {{ game.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+        </div>
+        <div class="game-actions">
+            <a href="{{ url_for('game.list_games') }}" class="btn btn-sm">← 返回大厅</a>
+            <button class="btn btn-sm btn-primary" onclick="regenerate()">🔄 重新生成</button>
+            <button class="btn-fullscreen" onclick="toggleFullscreen()">📺 全屏</button>
+        </div>
+    </div>
+
+    <div class="game-frame-wrapper" id="frame-wrapper">
+        <iframe src="{{ game.play_path }}" id="game-frame"></iframe>
+    </div>
+
+    <div class="game-info">
+        <h3>📝 原始需求</h3>
+        <p style="color: #666;" id="game-desc" data-description="{{ game.description }}">{{ game.description }}</p>
+        <div class="info-row">
+            <span><strong>文件：</strong>{{ game.filename }}</span>
+            <span><strong>状态：</strong>{{ game.status }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleFullscreen() {
+        const wrapper = document.getElementById('frame-wrapper');
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            wrapper.requestFullscreen();
+        }
+    }
+
+    function regenerate() {
+        if (confirm('将使用相同需求重新生成游戏，确定继续？')) {
+            const desc = document.getElementById('game-desc').dataset.description;
+            fetch('/api/game/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: desc })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.game) {
+                    window.location.href = '/game/play/' + data.game.id;
+                } else {
+                    alert('生成失败：' + data.error);
+                }
+            })
+            .catch(err => alert('请求失败：' + err.message));
+        }
+    }
+</script>
+{% endblock %}
