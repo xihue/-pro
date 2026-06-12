@@ -57,6 +57,49 @@ def init_app(app):
                 ),
             )
             db.commit()
+
+        # 数据库迁移：为已有数据库添加 parent_id 字段
+        try:
+            db.execute(
+                "ALTER TABLE game ADD COLUMN parent_id INTEGER REFERENCES game(id)"
+            )
+            db.commit()
+        except sqlite3.OperationalError:
+            pass  # 字段已存在
+
+        # 数据库迁移：添加 share_id 字段（分步，SQLite 不支持 ALTER ADD UNIQUE）
+        try:
+            db.execute("ALTER TABLE game ADD COLUMN share_id TEXT")
+            db.commit()
+        except sqlite3.OperationalError:
+            pass  # 字段已存在
+
+        # 为已有游戏生成 share_id
+        import secrets
+        try:
+            rows = db.execute(
+                "SELECT id FROM game WHERE share_id IS NULL"
+            ).fetchall()
+            for row in rows:
+                sid = secrets.token_urlsafe(6)
+                db.execute(
+                    "UPDATE game SET share_id = ? WHERE id = ?",
+                    (sid, row["id"]),
+                )
+            if rows:
+                db.commit()
+        except sqlite3.OperationalError:
+            pass
+
+        # 创建唯一索引
+        try:
+            db.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_game_share_id ON game(share_id)"
+            )
+            db.commit()
+        except sqlite3.OperationalError:
+            pass
+
         db.close()
 
 
@@ -79,6 +122,8 @@ CREATE TABLE IF NOT EXISTS game (
     filename      TEXT    NOT NULL,
     version       INTEGER DEFAULT 1,
     status        TEXT    DEFAULT 'completed',
+    parent_id     INTEGER REFERENCES game(id),
+    share_id      TEXT    UNIQUE,
     created_at    TEXT    DEFAULT (datetime('now'))
 );
 

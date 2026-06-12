@@ -212,7 +212,7 @@
 
         btn.disabled = true;
         statusEl.classList.add('show');
-        statusText.textContent = '正在生成游戏，请耐心等待...';
+        statusText.textContent = 'Connecting to AI...';
 
         try {
             const response = await fetch('/api/chat/stream', {
@@ -224,6 +224,7 @@
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let buffer = '';
+            let tokenCount = 0;
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -242,13 +243,18 @@
                             const event = JSON.parse(data);
                             if (event.type === 'status') {
                                 statusText.textContent = event.message;
+                            } else if (event.type === 'token') {
+                                tokenCount++;
+                                if (tokenCount % 80 === 0) {
+                                    statusText.textContent = 'Generating game code... (' + tokenCount + ' tokens)';
+                                }
                             } else if (event.type === 'done' && event.game) {
-                                statusText.textContent = '✅ 游戏「' + event.game.title + '」生成成功！即将跳转...';
+                                statusText.textContent = 'Done! "' + event.game.title + '" ready. Redirecting...';
                                 setTimeout(() => {
                                     window.location.href = '/game/play/' + event.game.id;
-                                }, 800);
+                                }, 600);
                             } else if (event.type === 'error') {
-                                statusText.textContent = '❌ 生成失败：' + event.message;
+                                statusText.textContent = 'Failed: ' + event.message;
                                 btn.disabled = false;
                             }
                         } catch(e) {}
@@ -256,7 +262,7 @@
                 }
             }
         } catch (err) {
-            statusText.textContent = '❌ 请求失败：' + err.message;
+            statusText.textContent = 'Request failed: ' + err.message;
             btn.disabled = false;
         }
     }

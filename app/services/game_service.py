@@ -1,50 +1,35 @@
-"""游戏生成服务"""
+# -*- coding: utf-8 -*-
+"""Game generation service — sync + streaming variants"""
 import os
 import re
 from flask import current_app
 from app.models.game import Game
-from app.services.llm_client import chat_sync
+from app.services.llm_client import chat_sync, chat_stream
 
+
+# ── Naming ──────────────────────────────────────────────
 
 def extract_game_name(html, user_request):
-    """智能提取游戏名称：优先从HTML &lt;title&gt;标签提取，其次LLM命名，最后兜底"""
-    # 1. 从 <title> 标签提取
+    """Extract game name from HTML <title> or user request. No extra LLM call."""
+    # 1. From <title> tag — fast, no API cost
     match = re.search(r"<title[^>]*>(.*?)</title>", html, re.IGNORECASE | re.DOTALL)
     if match:
         title = match.group(1).strip()
-        # 过滤掉明显不是游戏名的 title（过长、含代码等）
         if title and len(title) <= 30 and "<" not in title and "{" not in title:
             return title
 
-    # 2. LLM 提取游戏名（只用前3000字符，轻量调用）
-    try:
-        naming_prompt = f"""从以下HTML代码中提取游戏的简短中文名称（不超过10个字）。
-
-只返回游戏名称，不要解释。
-例如："贪吃蛇"、"飞机大战"、"俄罗斯方块"
-
-HTML片段：
-{html[:3000]}"""
-        name = chat_sync(messages=[{"role": "user", "content": naming_prompt}])
-        name = name.strip().strip("。.！!，,：:。\"'“”")
-        if name and len(name) <= 20:
-            return name
-    except Exception:
-        pass
-
-    # 3. 兜底：截断用户请求
+    # 2. Fallback: truncate user request
     fallback = user_request.strip()
     if len(fallback) > 20:
-        fallback = fallback[:20] + "…"
-    return fallback or "小游戏"
+        fallback = fallback[:20] + "..."
+    return fallback or "Game"
 
 
 def get_next_version(game_name):
-    """获取下一个版本号（清理文件名中的非法字符）"""
+    """Get next version number for a game name"""
     games_dir = current_app.config["GAMES_DIR"]
     os.makedirs(games_dir, exist_ok=True)
 
-    # 清理文件名中的非法字符
     safe_name = re.sub(r'[\\/:*?"<>|]', "", game_name)
 
     version = 1
@@ -53,56 +38,145 @@ def get_next_version(game_name):
     return version, safe_name
 
 
-def generate_game(user_request, user_id):
-    """生成 HTML5 游戏，返回 (game_record, html_content)"""
-    prompt = f"""你是一名HTML5游戏开发专家。
+# ── Sync (blocking) variants ────────────────────────────
 
-用户需求：
+_GAME_PROMPT = """You are an HTML5 game development expert.
+
+User request:
 
 {user_request}
 
-任务：
+Task:
 
-生成一个完整可运行的HTML5小游戏。
+Generate a complete, playable HTML5 game.
 
-要求：
+Requirements:
 
-1. 单文件HTML
-2. 内嵌CSS
-3. 内嵌JavaScript
-4. 游戏必须可玩
-5. 有开始界面
-6. 有结束界面
-7. 有计分系统
-8. 页面美观
-9. Canvas/游戏区域使用百分比或vw/vh自适应布局，适配不同屏幕尺寸
-10. 在&lt;title&gt;标签中写一个简洁的游戏中文名称
-11. 不要解释
-12. 不要Markdown代码块
+1. Single-file HTML
+2. Inline CSS
+3. Inline JavaScript
+4. Game must be playable
+5. Start screen
+6. End screen
+7. Scoring system
+8. Nice visual design
+9. Use percentage/vw/vh for responsive Canvas/game area
+10. Put a short Chinese game name in the <title> tag
+11. No explanations
+12. No markdown code blocks
 
-直接返回HTML源码。
+Return HTML source directly.
 """
 
+_IMPROVE_PROMPT = """You are an HTML5 game development expert.
+
+## Original Game Code
+
+Here is the complete HTML source of the existing game:
+
+```html
+{old_html}
+```
+
+## Improvement Request
+
+{improvement_prompt}
+
+## Task
+
+Modify the existing game code to implement the requested improvements. Do NOT rewrite from scratch.
+
+Requirements:
+1. Single-file HTML with inline CSS and JavaScript
+2. **Keep all original game features**, only add/modify what the user requested
+3. Game must be playable
+4. Start screen and end screen
+5. Scoring system
+6. Use percentage/vw/vh for responsive Canvas/game area
+7. Keep the original game name in the <title> tag
+8. Nice visual design
+9. **No explanations**
+10. **No markdown code blocks**
+
+Return the complete improved HTML source directly.
+"""
+
+
+def generate_game(user_request, user_id):
+    """Blocking game generation. Returns (game_record, html_content)."""
+    prompt = _GAME_PROMPT.format(user_request=user_request)
     html = chat_sync(messages=[{"role": "user", "content": prompt}])
 
-    # 清理代码块标记
-    html = html.replace("```html", "")
-    html = html.replace("```", "")
-    html = html.strip()
-
-    # 智能命名
+    html = _clean_html(html)
     game_name = extract_game_name(html, user_request)
     version, safe_name = get_next_version(game_name)
     filename = f"{safe_name}_v{version}.html"
 
-    # 保存文件
-    games_dir = current_app.config["GAMES_DIR"]
-    os.makedirs(games_dir, exist_ok=True)
-    filepath = os.path.join(games_dir, filename)
-    with open(filepath, "w", encoding="utf-8") as f:
-        f.write(html)
+    _save_html(filename, html)
 
-    # 创建数据库记录（标题用提取的游戏名）
+    game = Game.create(
+        user_id=user_id,
+        title=game_name,
+        description=user_request,
+        filename=filename,
+        version=version,
+        status="completed",
+    )
+    return game, html
+
+
+def improve_game(game_id, improvement_prompt, user_id):
+    """Blocking game improvement. Returns (new_game_record, new_html_content)."""
+    games_dir = current_app.config["GAMES_DIR"]
+
+    old_game = Game.get(game_id)
+    if old_game is None:
+        raise ValueError(f"Game {game_id} not found")
+
+    old_filepath = os.path.join(games_dir, old_game.filename)
+    if not os.path.exists(old_filepath):
+        raise ValueError(f"Game file {old_game.filename} not found")
+
+    with open(old_filepath, "r", encoding="utf-8") as f:
+        old_html = f.read()
+
+    prompt = _IMPROVE_PROMPT.format(
+        old_html=old_html,
+        improvement_prompt=improvement_prompt,
+    )
+    new_html = chat_sync(messages=[{"role": "user", "content": prompt}])
+    new_html = _clean_html(new_html)
+
+    return _finish_improve(old_game, new_html, improvement_prompt, user_id)
+
+
+# ── Streaming variants ──────────────────────────────────
+
+def generate_game_stream(user_request, user_id):
+    """Streaming game generation. Yields SSE event dicts.
+
+    Events: {type: "status", message: ...} | {type: "token", content: ...} | {type: "done", game: {...}}
+    """
+    prompt = _GAME_PROMPT.format(user_request=user_request)
+
+    yield {"type": "status", "message": "AI is thinking..."}
+
+    chunks = []
+    try:
+        for token in chat_stream(messages=[{"role": "user", "content": prompt}]):
+            chunks.append(token)
+            yield {"type": "token", "content": token}
+    except Exception as e:
+        yield {"type": "error", "message": str(e)}
+        return
+
+    html = _clean_html("".join(chunks))
+    game_name = extract_game_name(html, user_request)
+    version, safe_name = get_next_version(game_name)
+    filename = f"{safe_name}_v{version}.html"
+
+    _save_html(filename, html)
+
     game = Game.create(
         user_id=user_id,
         title=game_name,
@@ -112,4 +186,81 @@ def generate_game(user_request, user_id):
         status="completed",
     )
 
-    return game, html
+    yield {"type": "done", "game": game.to_dict()}
+
+
+def improve_game_stream(game_id, improvement_prompt, user_id):
+    """Streaming game improvement. Yields SSE event dicts.
+
+    Events: {type: "status", message: ...} | {type: "token", content: ...} | {type: "done", game: {...}}
+    """
+    games_dir = current_app.config["GAMES_DIR"]
+
+    old_game = Game.get(game_id)
+    if old_game is None:
+        yield {"type": "error", "message": f"Game {game_id} not found"}
+        return
+
+    old_filepath = os.path.join(games_dir, old_game.filename)
+    if not os.path.exists(old_filepath):
+        yield {"type": "error", "message": f"File {old_game.filename} not found"}
+        return
+
+    with open(old_filepath, "r", encoding="utf-8") as f:
+        old_html = f.read()
+
+    prompt = _IMPROVE_PROMPT.format(
+        old_html=old_html,
+        improvement_prompt=improvement_prompt,
+    )
+
+    yield {"type": "status", "message": f"Reading v{old_game.version} source, preparing improvements..."}
+
+    chunks = []
+    try:
+        for token in chat_stream(messages=[{"role": "user", "content": prompt}]):
+            chunks.append(token)
+            yield {"type": "token", "content": token}
+    except Exception as e:
+        yield {"type": "error", "message": str(e)}
+        return
+
+    new_html = _clean_html("".join(chunks))
+    new_game, _ = _finish_improve(old_game, new_html, improvement_prompt, user_id)
+
+    yield {"type": "done", "game": new_game.to_dict()}
+
+
+# ── Helpers ─────────────────────────────────────────────
+
+def _clean_html(html):
+    html = html.replace("```html", "")
+    html = html.replace("```", "")
+    return html.strip()
+
+
+def _save_html(filename, html):
+    games_dir = current_app.config["GAMES_DIR"]
+    os.makedirs(games_dir, exist_ok=True)
+    filepath = os.path.join(games_dir, filename)
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write(html)
+
+
+def _finish_improve(old_game, new_html, improvement_prompt, user_id):
+    game_name = old_game.title
+    version, safe_name = get_next_version(game_name)
+    filename = f"{safe_name}_v{version}.html"
+
+    _save_html(filename, new_html)
+
+    new_game = Game.create(
+        user_id=user_id,
+        title=game_name,
+        description=improvement_prompt,
+        filename=filename,
+        version=version,
+        status="completed",
+        parent_id=old_game.id,
+    )
+    return new_game, new_html

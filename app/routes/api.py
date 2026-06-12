@@ -9,7 +9,10 @@ from app.models.game import Game
 from app.models.conversation import Conversation
 from app.models.message import Message
 from app.services.router_service import route_task
-from app.services.game_service import generate_game
+from app.services.game_service import (
+    generate_game, improve_game,
+    generate_game_stream, improve_game_stream,
+)
 from app.services.chat_service import (
     send_message_sync, build_messages,
 )
@@ -161,15 +164,14 @@ def chat_stream_endpoint():
 
 
 def _handle_game_stream(user_input, user_id):
-    """游戏生成的 SSE 流 — 内联方式，避免线程上下文问题"""
+    """Real streaming game generation — tokens flow as they arrive"""
 
     def generate():
         yield f"data: {json.dumps({'type': 'meta', 'skill': 'game'})}\n\n"
-        yield f"data: {json.dumps({'type': 'status', 'message': '正在生成游戏...'}, ensure_ascii=False)}\n\n"
 
         try:
-            game, html = generate_game(user_input, user_id)
-            yield f"data: {json.dumps({'type': 'done', 'game': game.to_dict()}, ensure_ascii=False)}\n\n"
+            for event in generate_game_stream(user_input, user_id):
+                yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
 
@@ -228,3 +230,90 @@ def delete_game(game_id):
 
     Game.delete(game_id)
     return jsonify({"ok": True})
+
+
+# ── 游戏改进 API ──────────────────────────────────────
+
+@bp.route("/game/<int:game_id>/improve", methods=["POST"])
+@login_required
+def improve_game_api(game_id):
+    """基于已有游戏进行改进，生成新版本"""
+    data = request.get_json()
+    improvement_prompt = data.get("prompt", "").strip()
+
+    if not improvement_prompt:
+        return jsonify({"error": "改进需求不能为空"}), 400
+
+    # 验证旧游戏存在且属于当前用户
+    old_game = Game.get(game_id)
+    if old_game is None or old_game.user_id != current_user.id:
+        return jsonify({"error": "游戏不存在"}), 404
+
+    try:
+        new_game, html = improve_game(game_id, improvement_prompt, current_user.id)
+        return jsonify({
+            "game": new_game.to_dict(),
+            "message": f"游戏「{new_game.title}」v{new_game.version} 改进成功！",
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@bp.route("/game/<int:game_id>/improve/stream", methods=["POST"])
+@login_required
+def improve_game_stream_api(game_id):
+    """SSE streaming — improve game with real-time token output"""
+    data = request.get_json()
+    improvement_prompt = data.get("prompt", "").strip()
+
+    if not improvement_prompt:
+        return jsonify({"error": "改进需求不能为空"}), 400
+
+    old_game = Game.get(game_id)
+    if old_game is None or old_game.user_id != current_user.id:
+        return jsonify({"error": "游戏不存在"}), 404
+
+    def generate():
+        try:
+            for event in improve_game_stream(game_id, improvement_prompt, current_user.id):
+                yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@bp.route("/game/<int:game_id>/versions", methods=["GET"])
+@login_required
+def get_version_chain(game_id):
+    """获取某个游戏项目的所有版本"""
+    game = Game.get(game_id)
+    if game is None or game.user_id != current_user.id:
+        return jsonify({"error": "游戏不存在"}), 404
+
+    root_id = Game.find_root_id(game_id)
+    versions = Game.get_version_chain(root_id)
+    return jsonify([v.to_dict() for v in versions])
+
+
+@bp.route("/projects", methods=["GET"])
+@login_required
+def list_projects():
+    """列出用户的所有游戏项目（只返回根版本）"""
+    projects = Game.list_projects_by_user(current_user.id)
+    result = []
+    for proj in projects:
+        versions = Game.get_version_chain(proj.id)
+        result.append({
+            "project": proj.to_dict(),
+            "version_count": len(versions),
+            "versions": [v.to_dict() for v in versions],
+        })
+    return jsonify(result)

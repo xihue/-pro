@@ -63,6 +63,148 @@
     font-size: 14px;
 }
 .btn-fullscreen:hover { background: #f8fafc; }
+
+/* ── 改进面板 ── */
+.improve-panel {
+    margin-top: 20px;
+    padding: 24px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+.improve-panel h3 { margin-top: 0; display: flex; align-items: center; gap: 8px; }
+.improve-panel .panel-desc {
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+.improve-panel textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    box-sizing: border-box;
+}
+.improve-panel textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+.quick-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.quick-tag {
+    padding: 6px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #f8fafc;
+}
+.quick-tag:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: #eff6ff;
+}
+.improve-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+.btn-improve {
+    padding: 10px 24px;
+    background: #7c3aed;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-improve:hover { background: #6d28d9; }
+.btn-improve:disabled { background: #c4b5fd; cursor: not-allowed; }
+
+.improve-status {
+    display: none;
+    padding: 12px;
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+    border-radius: 8px;
+    margin-top: 14px;
+    text-align: center;
+    color: #6d28d9;
+    font-size: 14px;
+}
+.improve-status.show { display: block; }
+.spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #ddd6fe;
+    border-top-color: #7c3aed;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── 版本历史 ── */
+.version-history {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+.version-history h3 { margin-top: 0; display: flex; align-items: center; gap: 8px; }
+.version-timeline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+.version-dot {
+    width: 8px;
+    height: 8px;
+    background: #d1d5db;
+    border-radius: 50%;
+}
+.version-dot.active { background: var(--primary); }
+.version-link {
+    padding: 8px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 13px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.version-link.current {
+    border-color: var(--primary);
+    background: #eff6ff;
+    font-weight: 600;
+}
+.version-link:hover {
+    border-color: var(--primary);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.version-arrow {
+    color: #ccc;
+    font-size: 12px;
+}
 </style>
 {% endblock %}
 
@@ -75,8 +217,8 @@
         </div>
         <div class="game-actions">
             <a href="{{ url_for('game.list_games') }}" class="btn btn-sm">← 返回大厅</a>
-            <button class="btn btn-sm btn-primary" onclick="regenerate()">🔄 重新生成</button>
             <button class="btn-fullscreen" onclick="toggleFullscreen()">📺 全屏</button>
+            <button class="btn btn-sm" onclick="shareGame()" id="share-btn" style="background:#7c3aed;color:#fff;border:none;">🔗 分享</button>
         </div>
     </div>
 
@@ -86,10 +228,46 @@
 
     <div class="game-info">
         <h3>📝 原始需求</h3>
-        <p style="color: #666;" id="game-desc" data-description="{{ game.description }}">{{ game.description }}</p>
+        <p style="color: #666;">{{ game.description }}</p>
         <div class="info-row">
             <span><strong>文件：</strong>{{ game.filename }}</span>
             <span><strong>状态：</strong>{{ game.status }}</span>
+            <span id="game-id" data-id="{{ game.id }}"><strong>ID：</strong>#{{ game.id }}</span>
+        </div>
+    </div>
+
+    <!-- ── 版本历史 ── -->
+    <div class="version-history" id="version-history" style="display:none;">
+        <h3>📂 版本历史</h3>
+        <div class="version-timeline" id="version-timeline"></div>
+    </div>
+
+    <!-- ── 改进面板 ── -->
+    <div class="improve-panel">
+        <h3>🛠️ 改进这个游戏</h3>
+        <p class="panel-desc">在下方描述你想如何改进这个游戏，AI 将基于当前版本生成改进版</p>
+
+        <div class="quick-tags">
+            <span class="quick-tag" onclick="fillImprove('加快游戏速度')">⚡ 加速</span>
+            <span class="quick-tag" onclick="fillImprove('增加更多关卡')">🎯 加关卡</span>
+            <span class="quick-tag" onclick="fillImprove('添加音效和背景音乐')">🔊 加音效</span>
+            <span class="quick-tag" onclick="fillImprove('美化界面和特效')">✨ 美化界面</span>
+            <span class="quick-tag" onclick="fillImprove('添加排行榜功能')">🏆 加排行榜</span>
+            <span class="quick-tag" onclick="fillImprove('增加障碍物和难度')">🧱 加障碍物</span>
+            <span class="quick-tag" onclick="fillImprove('支持移动端触屏操作')">📱 移动端适配</span>
+            <span class="quick-tag" onclick="fillImprove('增加双人对战模式')">👥 双人对战</span>
+        </div>
+
+        <textarea id="improve-prompt" placeholder="例如：加快蛇的移动速度，添加障碍物，当分数超过50时增加难度..."></textarea>
+
+        <div class="improve-actions">
+            <button class="btn-improve" id="improve-btn" onclick="improveGame()">🚀 生成改进版</button>
+            <span style="font-size: 13px; color: #888;">基于当前 v{{ game.version }} 版本改进</span>
+        </div>
+
+        <div class="improve-status" id="improve-status">
+            <span class="spinner"></span>
+            <span id="status-text">正在生成改进版，请耐心等待...</span>
         </div>
     </div>
 </div>
@@ -97,6 +275,8 @@
 
 {% block scripts %}
 <script>
+    const gameId = {{ game.id }};
+
     function toggleFullscreen() {
         const wrapper = document.getElementById('frame-wrapper');
         if (document.fullscreenElement) {
@@ -106,24 +286,134 @@
         }
     }
 
-    function regenerate() {
-        if (confirm('将使用相同需求重新生成游戏，确定继续？')) {
-            const desc = document.getElementById('game-desc').dataset.description;
-            fetch('/api/game/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: desc })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.game) {
-                    window.location.href = '/game/play/' + data.game.id;
-                } else {
-                    alert('生成失败：' + data.error);
-                }
-            })
-            .catch(err => alert('请求失败：' + err.message));
+    function fillImprove(text) {
+        document.getElementById('improve-prompt').value = text;
+        document.getElementById('improve-prompt').focus();
+    }
+
+    async function shareGame() {
+        const sharePath = "{{ game.share_link }}";
+        const fullUrl = window.location.origin + sharePath;
+        const btn = document.getElementById('share-btn');
+
+        try {
+            await navigator.clipboard.writeText(fullUrl);
+            btn.textContent = '✅ 已复制';
+            btn.style.background = '#16a34a';
+            setTimeout(() => {
+                btn.innerHTML = '🔗 分享';
+                btn.style.background = '#7c3aed';
+            }, 2000);
+        } catch(e) {
+            // fallback for older browsers
+            prompt('复制这个链接分享给朋友：', fullUrl);
         }
     }
+
+    async function improveGame() {
+        const prompt = document.getElementById('improve-prompt').value.trim();
+        if (!prompt) {
+            alert('请输入改进建议');
+            return;
+        }
+
+        const btn = document.getElementById('improve-btn');
+        const statusEl = document.getElementById('improve-status');
+        const statusText = document.getElementById('status-text');
+
+        btn.disabled = true;
+        statusEl.classList.add('show');
+        statusText.textContent = 'Connecting...';
+
+        try {
+            const response = await fetch('/api/game/' + gameId + '/improve/stream', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: prompt })
+            });
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            let tokenCount = 0;
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    if (!line.startsWith('data: ')) continue;
+                    const data = line.slice(6);
+
+                    try {
+                        const event = JSON.parse(data);
+                        if (event.type === 'status') {
+                            statusText.textContent = event.message;
+                        } else if (event.type === 'token') {
+                            tokenCount++;
+                            // Show progress every 50 tokens
+                            if (tokenCount % 50 === 0) {
+                                statusText.textContent = 'Writing code... (' + tokenCount + ' tokens)';
+                            }
+                        } else if (event.type === 'done' && event.game) {
+                            statusText.textContent = 'Done! v' + event.game.version + ' generated. Redirecting...';
+                            setTimeout(() => {
+                                window.location.href = '/game/play/' + event.game.id;
+                            }, 500);
+                        } else if (event.type === 'error') {
+                            statusText.textContent = 'Failed: ' + event.message;
+                            btn.disabled = false;
+                        }
+                    } catch(e) {}
+                }
+            }
+        } catch (err) {
+            statusText.textContent = 'Request failed: ' + err.message;
+            btn.disabled = false;
+        }
+    }
+
+    // ── 加载版本历史 ──
+    async function loadVersionHistory() {
+        try {
+            const resp = await fetch('/api/game/' + gameId + '/versions');
+            const versions = await resp.json();
+
+            if (versions.length <= 1) return; // 只有一个版本，不显示
+
+            const historyEl = document.getElementById('version-history');
+            const timelineEl = document.getElementById('version-timeline');
+
+            historyEl.style.display = 'block';
+            timelineEl.innerHTML = '';
+
+            versions.forEach((v, i) => {
+                if (i > 0) {
+                    const arrow = document.createElement('span');
+                    arrow.className = 'version-arrow';
+                    arrow.textContent = '→';
+                    timelineEl.appendChild(arrow);
+                }
+
+                const link = document.createElement('a');
+                link.href = '/game/play/' + v.id;
+                link.className = 'version-link' + (v.id === gameId ? ' current' : '');
+                link.textContent = 'v' + v.version;
+                if (v.id === gameId) {
+                    link.innerHTML = '📍 v' + v.version + ' (当前)';
+                }
+                timelineEl.appendChild(link);
+            });
+        } catch (err) {
+            console.error('加载版本历史失败：', err);
+        }
+    }
+
+    // 页面加载时获取版本历史
+    loadVersionHistory();
 </script>
 {% endblock %}

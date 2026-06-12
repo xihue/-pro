@@ -1,5 +1,6 @@
 """游戏模型 — 基于 sqlite3"""
 import os
+import secrets
 from datetime import datetime
 from flask import current_app
 from app.database import query_one, query_all, execute, commit
@@ -40,6 +41,20 @@ class Game:
     def version(self): return self._data.get("version", 1)
 
     @property
+    def parent_id(self): return self._data.get("parent_id")
+
+    @property
+    def share_id(self): return self._data.get("share_id")
+
+    @property
+    def share_link(self):
+        """完整分享链接"""
+        sid = self.share_id
+        if not sid:
+            return None
+        return f"/s/{sid}"
+
+    @property
     def status(self): return self._data.get("status", "completed")
 
     @property
@@ -62,6 +77,9 @@ class Game:
             "description": self.description,
             "play_path": self.play_path,
             "version": self.version,
+            "parent_id": self.parent_id,
+            "share_link": self.share_link,
+            "share_id": self.share_id,
             "status": self.status,
             "created_at": cat,
         }
@@ -71,6 +89,11 @@ class Game:
     @staticmethod
     def get(game_id):
         row = query_one("SELECT * FROM game WHERE id = ?", (game_id,))
+        return Game(row) if row else None
+
+    @staticmethod
+    def get_by_share_id(share_id):
+        row = query_one("SELECT * FROM game WHERE share_id = ?", (share_id,))
         return Game(row) if row else None
 
     @staticmethod
@@ -93,10 +116,59 @@ class Game:
         return row["cnt"] if row else 0
 
     @staticmethod
-    def create(user_id, title, description, filename, version=1, status="completed"):
+    def list_projects_by_user(user_id):
+        """只返回根版本（parent_id IS NULL），即每个项目的入口"""
+        rows = query_all(
+            "SELECT * FROM game WHERE user_id = ? AND parent_id IS NULL ORDER BY created_at DESC",
+            (user_id,),
+        )
+        return [Game(r) for r in rows]
+
+    @staticmethod
+    def get_version_chain(root_id):
+        """从根版本开始，沿 parent_id 链找出所有后代版本，按版本号排序"""
+        versions = []
+        root = Game.get(root_id)
+        if root is None:
+            return versions
+        versions.append(root)
+
+        # 递归查找所有子版本（BFS）
+        queue = [root_id]
+        while queue:
+            parent = queue.pop(0)
+            children = query_all(
+                "SELECT * FROM game WHERE parent_id = ? ORDER BY version ASC",
+                (parent,),
+            )
+            for child in children:
+                game = Game(child)
+                versions.append(game)
+                queue.append(game.id)
+
+        # 按版本号排序
+        versions.sort(key=lambda g: g.version)
+        return versions
+
+    @staticmethod
+    def find_root_id(game_id):
+        """沿着 parent_id 链向上查找根版本 ID"""
+        current = Game.get(game_id)
+        if current is None:
+            return None
+        while current.parent_id:
+            parent = Game.get(current.parent_id)
+            if parent is None:
+                break
+            current = parent
+        return current.id
+
+    @staticmethod
+    def create(user_id, title, description, filename, version=1, status="completed", parent_id=None):
+        share_id = secrets.token_urlsafe(6)  # 8-char share ID
         execute(
-            "INSERT INTO game (user_id, title, description, filename, version, status) VALUES (?, ?, ?, ?, ?, ?)",
-            (user_id, title, description, filename, version, status),
+            "INSERT INTO game (user_id, title, description, filename, version, status, parent_id, share_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (user_id, title, description, filename, version, status, parent_id, share_id),
         )
         commit()
         row = query_one("SELECT * FROM game WHERE id = last_insert_rowid()")
@@ -109,6 +181,14 @@ class Game:
 
     @staticmethod
     def delete(game_id):
+        # 先更新子版本的 parent_id，让它们指向被删版本的父级（链不断开）
+        game = Game.get(game_id)
+        if game:
+            new_parent = game.parent_id
+            execute(
+                "UPDATE game SET parent_id = ? WHERE parent_id = ?",
+                (new_parent, game_id),
+            )
         execute("DELETE FROM game WHERE id = ?", (game_id,))
         commit()
 

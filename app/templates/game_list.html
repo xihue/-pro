@@ -13,66 +13,135 @@
 }
 .game-list-header h2 { margin: 0; }
 
-.game-grid-large {
+/* ── 项目文件夹卡片 ── */
+.project-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 16px;
 }
 
-.game-card-large {
+.project-folder {
     background: #fff;
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    padding: 20px;
-    transition: box-shadow 0.2s, transform 0.2s;
-}
-.game-card-large:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    transform: translateY(-2px);
-}
-.game-card-large .game-card-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-.game-card-large .game-icon {
-    font-size: 36px;
-}
-.game-card-large .game-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0;
-}
-.game-card-large .game-version {
-    font-size: 12px;
-    color: #888;
-}
-.game-card-large .game-desc {
-    font-size: 13px;
-    color: #666;
-    line-height: 1.5;
-    margin-bottom: 16px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
     overflow: hidden;
+    transition: box-shadow 0.2s;
 }
-.game-card-large .game-card-footer {
+.project-folder:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+
+.folder-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-top: 1px solid #f0f2f5;
-    padding-top: 12px;
+    padding: 18px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
 }
-.game-card-large .game-date {
+.folder-header:hover { background: #fafbfc; }
+.folder-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.folder-icon {
+    font-size: 32px;
+    transition: transform 0.2s;
+}
+.folder-icon.open { transform: rotate(15deg); }
+.folder-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+.folder-meta {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+.folder-badge {
+    padding: 3px 10px;
+    background: #eff6ff;
+    color: #2563eb;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+.folder-chevron {
+    font-size: 12px;
+    color: #aaa;
+    transition: transform 0.2s;
+}
+.folder-chevron.open { transform: rotate(90deg); }
+
+/* ── 版本列表（可展开） ── */
+.version-list {
+    display: none;
+    border-top: 1px solid #f0f2f5;
+    background: #fafbfc;
+}
+.version-list.open { display: block; }
+.version-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px 10px 40px;
+    border-bottom: 1px solid #f0f2f5;
+    transition: background 0.15s;
+    font-size: 14px;
+}
+.version-item:last-child { border-bottom: none; }
+.version-item:hover { background: #eff6ff; }
+.version-item-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.version-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #e0e7ff;
+    color: #4338ca;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+.version-badge.current { background: #dbeafe; color: #1d4ed8; }
+.version-desc {
+    font-size: 13px;
+    color: #666;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.version-date {
     font-size: 12px;
     color: #999;
+    min-width: 80px;
+    text-align: right;
 }
-.game-card-large .game-card-actions {
+.version-actions {
     display: flex;
     gap: 8px;
 }
+.btn-xs {
+    padding: 3px 10px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text-color);
+    transition: all 0.15s;
+}
+.btn-xs:hover { background: #f0f2f5; }
+.btn-xs.btn-play {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+.btn-xs.btn-play:hover { background: #1a56db; }
 
 .empty-state {
     text-align: center;
@@ -91,48 +160,105 @@
         <a href="{{ url_for('game.create') }}" class="btn btn-primary">+ 生成新游戏</a>
     </div>
 
-    {% if games %}
-    <div class="game-grid-large">
-        {% for game in games %}
-        <div class="game-card-large">
-            <div class="game-card-header">
-                <span class="game-icon">
-                    {% if game.status == 'completed' %}🎮
-                    {% elif game.status == 'generating' %}⏳
-                    {% else %}❌{% endif %}
-                </span>
-                <div>
-                    <h3 class="game-title">{{ game.title }}</h3>
-                    <span class="game-version">v{{ game.version }}</span>
-                </div>
-            </div>
-            <div class="game-desc">{{ game.description }}</div>
-            <div class="game-card-footer">
-                <span class="game-date">{{ game.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
-                <div class="game-card-actions">
-                    {% if game.status == 'completed' %}
-                    <a href="{{ url_for('game.play', game_id=game.id) }}" class="btn btn-primary btn-sm">▶ 试玩</a>
-                    {% endif %}
-                    <button class="btn btn-sm" onclick="deleteGame({{ game.id }})" style="color: #dc2626;">🗑</button>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
+    <div id="project-grid" class="project-grid">
+        <div style="text-align:center;padding:40px;color:#888;">加载中...</div>
     </div>
-    {% else %}
-    <div class="empty-state">
+
+    <div class="empty-state" id="empty-state" style="display:none;">
         <div class="empty-icon">🎮</div>
         <h3>还没有生成任何游戏</h3>
         <p>去 <a href="{{ url_for('game.create') }}">生成游戏</a> 页面创建你的第一个游戏吧！</p>
     </div>
-    {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    async function deleteGame(id) {
-        if (!confirm('确定要删除这个游戏吗？')) return;
+    async function loadProjects() {
+        try {
+            const resp = await fetch('/api/projects');
+            const projects = await resp.json();
+
+            const grid = document.getElementById('project-grid');
+            const empty = document.getElementById('empty-state');
+
+            if (!projects.length) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            empty.style.display = 'none';
+
+            grid.innerHTML = projects.map(p => `
+                <div class="project-folder" data-root-id="${p.project.id}">
+                    <div class="folder-header" onclick="toggleFolder(this)" title="点击展开/收起版本列表">
+                        <div class="folder-header-left">
+                            <span class="folder-icon">📁</span>
+                            <div>
+                                <div class="folder-title">${escapeHtml(p.project.title)}</div>
+                                <div class="folder-meta">创建于 ${p.project.created_at}</div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span class="folder-badge">${p.version_count} 个版本</span>
+                            <span class="folder-chevron">▶</span>
+                        </div>
+                    </div>
+                    <div class="version-list">
+                        ${p.versions.map((v, i) => `
+                            <div class="version-item">
+                                <div class="version-item-left">
+                                    <span class="version-badge">v${v.version}</span>
+                                    <span class="version-desc" title="${escapeHtml(v.description || '')}">${escapeHtml(v.description || '初始版本')}</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:12px;">
+                                    <span class="version-date">${v.created_at}</span>
+                                    <div class="version-actions">
+                                        <a href="/game/play/${v.id}" class="btn-xs btn-play">▶ 试玩</a>
+                                        <button class="btn-xs" onclick="deleteGame(event, ${v.id})" style="color:#dc2626;">🗑</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        } catch (err) {
+            console.error('加载项目失败：', err);
+        }
+    }
+
+    function toggleFolder(header) {
+        const folder = header.parentElement;
+        const versionList = folder.querySelector('.version-list');
+        const chevron = header.querySelector('.folder-chevron');
+        const icon = folder.querySelector('.folder-icon');
+
+        const isOpen = versionList.classList.contains('open');
+        if (isOpen) {
+            versionList.classList.remove('open');
+            chevron.classList.remove('open');
+            icon.classList.remove('open');
+            icon.textContent = '📁';
+        } else {
+            versionList.classList.add('open');
+            chevron.classList.add('open');
+            icon.classList.add('open');
+            icon.textContent = '📂';
+        }
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    async function deleteGame(event, id) {
+        event.stopPropagation();
+        if (!confirm('确定要删除这个版本吗？（不会影响同一项目的其他版本）')) return;
 
         try {
             const resp = await fetch('/api/games/' + id, { method: 'DELETE' });
@@ -146,5 +272,8 @@
             alert('请求失败：' + e.message);
         }
     }
+
+    // 页面加载
+    loadProjects();
 </script>
 {% endblock %}

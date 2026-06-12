@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ game.title }} — AI 游戏工厂</title>
+    <meta property="og:title" content="🎮 {{ game.title }} — AI 游戏工厂">
+    <meta property="og:description" content="来试试我生成的游戏吧！">
+    <meta property="og:type" content="website">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{
+            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+            background:#1a1a2e;
+            color:#fff;
+            overflow:hidden;
+            height:100vh;
+            display:flex;flex-direction:column;
+        }
+
+        /* top bar */
+        .share-bar{
+            display:flex;align-items:center;justify-content:space-between;
+            padding:10px 16px;
+            background:rgba(0,0,0,0.5);
+            backdrop-filter:blur(10px);
+            border-bottom:1px solid rgba(255,255,255,0.08);
+            z-index:10;
+            flex-shrink:0;
+        }
+        .share-bar-left{
+            display:flex;align-items:center;gap:10px;
+        }
+        .share-badge{
+            padding:3px 10px;
+            background:rgba(139,92,246,0.3);
+            border:1px solid rgba(139,92,246,0.4);
+            border-radius:12px;
+            font-size:11px;color:#c4b5fd;
+            white-space:nowrap;
+        }
+        .share-title{
+            font-size:15px;font-weight:600;
+            max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+        }
+        .share-bar-right{
+            display:flex;align-items:center;gap:10px;
+        }
+        .btn-full{
+            padding:6px 12px;
+            background:rgba(255,255,255,0.1);
+            border:1px solid rgba(255,255,255,0.15);
+            border-radius:8px;color:#fff;
+            font-size:12px;cursor:pointer;
+            font-family:inherit;
+            transition:background 0.2s;
+        }
+        .btn-full:hover{background:rgba(255,255,255,0.2)}
+
+        .btn-create-own{
+            padding:6px 14px;
+            background:linear-gradient(135deg,#7c3aed,#a78bfa);
+            border:none;border-radius:8px;color:#fff;
+            font-size:12px;font-weight:600;cursor:pointer;
+            font-family:inherit;
+            text-decoration:none;
+            transition:all 0.2s;
+        }
+        .btn-create-own:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,58,237,0.4)}
+
+        /* game iframe */
+        .game-wrapper{
+            flex:1;
+            background:#0f0f23;
+            display:flex;align-items:center;justify-content:center;
+        }
+        .game-wrapper iframe{
+            width:100%;height:100%;
+            border:none;
+        }
+
+        /* footer hint */
+        .share-footer{
+            text-align:center;
+            padding:8px;font-size:11px;
+            color:rgba(255,255,255,0.25);
+            flex-shrink:0;
+        }
+        .share-footer a{
+            color:rgba(255,255,255,0.4);
+            text-decoration:none;
+        }
+        .share-footer a:hover{color:#a78bfa}
+
+        /* mobile tweaks */
+        @media(max-width:600px){
+            .share-title{font-size:13px;max-width:120px}
+            .share-badge{font-size:10px;padding:2px 8px}
+            .share-bar{padding:8px 12px}
+            .btn-create-own{font-size:11px;padding:5px 10px}
+        }
+    </style>
+</head>
+<body>
+
+    <div class="share-bar">
+        <div class="share-bar-left">
+            <span style="font-size:18px;">🎮</span>
+            <span class="share-title">{{ game.title }}</span>
+            <span class="share-badge">共享版</span>
+        </div>
+        <div class="share-bar-right">
+            <button class="btn-full" onclick="toggleFullscreen()" title="全屏">📺</button>
+            <a href="/" class="btn-create-own">✨ 我也要做一个</a>
+        </div>
+    </div>
+
+    <div class="game-wrapper">
+        <iframe src="{{ game.play_path }}" id="game-frame"></iframe>
+    </div>
+
+    <div class="share-footer">
+        由 <a href="/">AI 游戏梦工厂</a> 生成 · 喜欢的话来做一个属于你自己的游戏吧
+    </div>
+
+    <script>
+        function toggleFullscreen(){
+            const el=document.documentElement;
+            if(document.fullscreenElement)document.exitFullscreen();
+            else el.requestFullscreen();
+        }
+    </script>
+
+</body>
+</html>

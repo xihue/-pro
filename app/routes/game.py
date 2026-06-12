@@ -5,6 +5,9 @@ from app.models.game import Game
 bp = Blueprint("game", __name__)
 
 
+# ── 需要登录的路由 ────────────────────────────────────
+
+
 @bp.route("/create")
 @login_required
 def create():
