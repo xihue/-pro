@@ -135,6 +135,21 @@
 }
 .badge-success { background: #dcfce7; color: #166534; }
 .badge-failed { background: #fee2e2; color: #991b1b; }
+
+/* ═══════════════════════════════════════════════
+   MOBILE RESPONSIVE
+   ═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .create-form { padding: 20px 16px; }
+    .create-form h2 { font-size: 18px; }
+    .create-form textarea { font-size: 15px; min-height: 100px; }
+    .form-actions { flex-direction: column; align-items: flex-start; }
+    .btn-generate { width: 100%; text-align: center; }
+    .quick-tag { font-size: 12px; padding: 5px 12px; }
+    .recent-item { flex-wrap: wrap; gap: 10px; }
+    .recent-item .recent-info { min-width: 0; }
+    .recent-item .recent-title { font-size: 13px; }
+}
 </style>
 {% endblock %}
 

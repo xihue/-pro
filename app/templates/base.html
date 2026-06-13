@@ -11,7 +11,11 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="{{ url_for('main.index') }}" class="nav-brand">🎮 AI 游戏工厂</a>
-            <div class="nav-links">
+
+            <!-- Hamburger toggle (visible only on mobile) -->
+            <button class="nav-toggle" id="nav-toggle" aria-label="菜单" onclick="toggleNav()">☰</button>
+
+            <div class="nav-links" id="nav-links">
                 <a href="{{ url_for('main.index') }}" class="nav-link">🏠 首页</a>
                 <a href="{{ url_for('chat.index') }}" class="nav-link">💬 AI 对话</a>
                 <a href="{{ url_for('game.create') }}" class="nav-link">✨ 生成游戏</a>
@@ -23,6 +27,9 @@
             </div>
         </div>
     </nav>
+
+    <!-- Overlay for mobile nav -->
+    <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 
     <div class="main-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -39,8 +46,35 @@
     </div>
 
     <footer class="footer">
-        <p>© 2026 AI Personal Agent V1 — 网页游戏工厂</p>
+        <p>&copy; 2026 AI Personal Agent V1 — 网页游戏工厂</p>
     </footer>
+
+    <!-- Mobile nav toggle script -->
+    <script>
+        function toggleNav() {
+            var links = document.getElementById('nav-links');
+            var overlay = document.getElementById('nav-overlay');
+            var toggle = document.getElementById('nav-toggle');
+            var isOpen = links.classList.contains('open');
+            if (isOpen) {
+                links.classList.remove('open');
+                overlay.classList.remove('show');
+                toggle.textContent = '☰';
+            } else {
+                links.classList.add('open');
+                overlay.classList.add('show');
+                toggle.textContent = '✕';
+            }
+        }
+        function closeNav() {
+            var links = document.getElementById('nav-links');
+            var overlay = document.getElementById('nav-overlay');
+            var toggle = document.getElementById('nav-toggle');
+            links.classList.remove('open');
+            overlay.classList.remove('show');
+            toggle.textContent = '☰';
+        }
+    </script>
 
     {% block scripts %}{% endblock %}
 </body>

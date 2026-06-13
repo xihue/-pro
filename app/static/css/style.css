@@ -19,6 +19,7 @@ body {
     background: var(--bg-color);
     color: var(--text-color);
     min-height: 100vh;
+    min-height: 100dvh;
     line-height: 1.6;
 }
 a { color: var(--primary); text-decoration: none; }
@@ -41,12 +42,14 @@ a:hover { text-decoration: underline; }
     display: flex;
     align-items: center;
     gap: 24px;
+    position: relative;
 }
 .nav-brand {
     font-size: 18px;
     font-weight: 700;
     color: var(--text-color) !important;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 .nav-links {
     display: flex;
@@ -70,10 +73,27 @@ a:hover { text-decoration: underline; }
     align-items: center;
     gap: 12px;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 .nav-username {
     font-size: 14px;
     color: #888;
+}
+
+/* ── Hamburger Menu Button (mobile) ───────────── */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 26px;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+    color: var(--text-color);
+    flex-shrink: 0;
+}
+.nav-overlay {
+    display: none;
 }
 
 /* ── Main Container ──────────────────────────── */
@@ -82,6 +102,7 @@ a:hover { text-decoration: underline; }
     margin: 0 auto;
     padding: 24px 20px;
     min-height: calc(100vh - var(--nav-height) - 50px);
+    min-height: calc(100dvh - var(--nav-height) - 50px);
 }
 
 /* ── Flash Messages ──────────────────────────── */
@@ -199,4 +220,87 @@ a:hover { text-decoration: underline; }
     color: #bbb;
     font-size: 12px;
     border-top: 1px solid var(--border-color);
+}
+
+/* ═══════════════════════════════════════════════
+   MOBILE RESPONSIVE — all pages using base.html
+   ═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    /* ── Collapsible Navbar ── */
+    .nav-container {
+        gap: 12px;
+        padding: 0 12px;
+    }
+    .nav-brand { font-size: 16px; }
+
+    /* Hide links by default, show toggle button */
+    .nav-toggle {
+        display: block;
+    }
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: var(--nav-height);
+        left: 0;
+        right: 0;
+        background: #fff;
+        flex-direction: column;
+        gap: 0;
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        z-index: 200;
+        padding: 8px 0;
+    }
+    .nav-links.open {
+        display: flex;
+    }
+    .nav-link {
+        padding: 12px 20px;
+        border-radius: 0;
+        font-size: 15px;
+        border-bottom: 1px solid #f5f5f5;
+    }
+    .nav-link:last-child { border-bottom: none; }
+
+    /* Overlay when nav is open */
+    .nav-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        top: var(--nav-height);
+        background: rgba(0,0,0,0.3);
+        z-index: 150;
+    }
+    .nav-overlay.show {
+        display: block;
+    }
+
+    /* Simplified user area */
+    .nav-user { gap: 8px; }
+    .nav-username { font-size: 13px; }
+
+    /* ── General ── */
+    .main-container {
+        padding: 16px 12px;
+    }
+
+    /* ── Dashboard ── */
+    .hero { padding: 20px 0 16px; }
+    .hero h1 { font-size: 22px; }
+    .hero-subtitle { font-size: 14px; }
+    .stats-cards { gap: 10px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 20px; }
+
+    /* ── Game list ── */
+    .game-grid {
+        grid-template-columns: 1fr;
+    }
+    .game-card { padding: 12px; }
+}
+
+@media (max-width: 480px) {
+    .nav-brand { font-size: 15px; }
+    .nav-username { display: none; }
+    .hero h1 { font-size: 20px; }
 }

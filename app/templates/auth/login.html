@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 — 游戏梦工厂</title>
     <style>
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -15,9 +15,10 @@
 
         body{
             font-family:"PingFang SC","Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-            min-height:100vh;
+            min-height:100vh;min-height:100dvh;
+            overflow-x:hidden;cursor:default;
+            background:#eaf4fb;
         }
-        body{overflow-x:hidden;cursor:default;user-select:none;}
 
         .wall{
             position:fixed;inset:0;z-index:0;
@@ -261,7 +262,7 @@
                 <form method="POST" action="{{ url_for('auth.login') }}">
                     <div class="field">
                         <label>用户名</label>
-                        <input type="text" name="username" placeholder="你的名字" required>
+                        <input type="text" name="username" placeholder="你的名字" required autofocus>
                     </div>
                     <div class="field">
                         <label>密码</label>

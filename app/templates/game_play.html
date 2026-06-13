@@ -32,7 +32,8 @@
 .game-frame-wrapper iframe {
     width: 100%;
     height: 80vh;
-    min-height: 500px;
+    height: 80dvh;
+    min-height: 400px;
     max-height: 900px;
     border: none;
     display: block;
@@ -204,6 +205,29 @@
 .version-arrow {
     color: #ccc;
     font-size: 12px;
+}
+
+/* ═══════════════════════════════════════════════
+   MOBILE RESPONSIVE
+   ═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .game-header { flex-direction: column; align-items: flex-start; }
+    .game-header h2 { font-size: 18px; }
+    .game-actions { width: 100%; }
+    .game-actions .btn, .game-actions .btn-fullscreen { font-size: 12px; padding: 6px 10px; }
+    .game-frame-wrapper iframe { min-height: 300px; height: 60vh; height: 60dvh; }
+    .game-info { padding: 14px; }
+    .improve-panel { padding: 16px; }
+    .improve-panel textarea { font-size: 15px; }
+    .version-history { padding: 14px; }
+    .version-link { font-size: 12px; padding: 6px 10px; }
+}
+
+@media (max-width: 480px) {
+    .game-frame-wrapper iframe { min-height: 280px; height: 55vh; height: 55dvh; }
+    .game-header h2 { font-size: 16px; }
+    .game-meta { font-size: 12px; }
+    .quick-tag { font-size: 12px; padding: 5px 10px; }
 }
 </style>
 {% endblock %}

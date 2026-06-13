@@ -9,19 +9,23 @@
            RESET
            ═══════════════════════════════════════════ */
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html { height: 100%; }
         body {
             font-family: "PingFang SC","Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-            overflow-x: hidden;
+            min-height: 100vh;
+            min-height: 100dvh;
             cursor: default;
             -webkit-font-smoothing: antialiased;
+            background: #e8eaf6;
         }
 
         /* ═══════════════════════════════════════════════
            SKY — dreamy gradient canvas
-           ═══════════════════════════════════════════════ */
+           ═══════════════════════════════════════════ */
         .hero {
             position: relative;
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -56,7 +60,7 @@
 
         /* ═══════════════════════════════════════════════
            FLOATING ELEMENTS — the playful stuff
-           ═══════════════════════════════════════════════ */
+           ═══════════════════════════════════════════ */
 
         .floater {
             position: absolute;
@@ -202,7 +206,7 @@
 
         /* ═══════════════════════════════════════════════
            MAIN CONTENT — centered card
-           ═══════════════════════════════════════════════ */
+           ═══════════════════════════════════════════ */
 
         .hero-content {
             position: relative;
@@ -210,6 +214,7 @@
             text-align: center;
             padding: 40px 30px;
             max-width: 680px;
+            width: 100%;
             animation: contentIn 1.2s ease-out;
         }
         @keyframes contentIn {
@@ -330,7 +335,7 @@
 
         /* ═══════════════════════════════════════════════
            FEATURE PILLS — what you can create
-           ═══════════════════════════════════════════════ */
+           ═══════════════════════════════════════════ */
         .feature-pills {
             display: flex;
             flex-wrap: wrap;
@@ -370,19 +375,46 @@
 
         /* ═══════════════════════════════════════════════
            RESPONSIVE
-           ═══════════════════════════════════════════════ */
+           ═══════════════════════════════════════════ */
         @media (max-width: 640px) {
             .hero-content { padding: 30px 18px; }
             .hero-title { font-size:34px;letter-spacing:-0.5px; }
             .btn-create { padding:14px 36px;font-size:16px;letter-spacing:1px; }
             .feature-pills { gap:7px;margin-top:24px; }
             .pill { padding:6px 14px;font-size:12px; }
-            .dice-el { width:28px;height:28px;font-size:12px; }
-            .dice-small { width:20px;height:20px;font-size:10px; }
+            /* Scale down decorative elements */
+            .dice-el { width:28px;height:28px;font-size:12px;top:12%;right:8%; }
+            .dice-small { width:20px;height:20px;font-size:10px;top:22%;right:12%; }
             .monster-body { width:38px;height:32px; }
-            .gamepad-el { width:50px;height:32px; }
-            .pixel-cloud-el { transform:scale(0.7); }
+            .monster-el { top:55%;right:5%; }
+            .gamepad-el { width:50px;height:32px;top:65%;left:3%; }
+            .pixel-cloud-el { transform:scale(0.7);top:5%;left:5%; }
             .code-frag { font-size:10px; }
+            /* Reduce cloud sizes on mobile */
+            .cw1 { width:300px;height:120px; }
+            .cw2 { width:250px;height:100px; }
+            .cw3 { width:220px;height:90px; }
+            .cw4 { width:200px;height:80px; }
+            .cw5 { width:180px;height:70px; }
+            /* Reduce filter blur for mobile performance */
+            .cloud-wisp { filter: blur(40px); }
+        }
+
+        @media (max-width: 380px) {
+            .hero-content { padding: 24px 14px; }
+            .hero-title { font-size:28px; }
+            .hero-emblem { font-size:42px; }
+            .btn-create { padding:14px 28px;font-size:15px;letter-spacing:0.5px; }
+            .hero-desc { font-size:13px;margin-bottom:24px; }
+            .feature-pills { gap:5px;margin-top:20px; }
+            .pill { padding:5px 10px;font-size:11px; }
+            .dice-el { display:none; }
+            .dice-small { display:none; }
+            .monster-el { display:none; }
+            .gamepad-el { display:none; }
+            .cw1 { width:200px;height:80px; }
+            .cw2 { width:180px;height:70px; }
+            .cw3, .cw4, .cw5 { display:none; }
         }
     </style>
 </head>
