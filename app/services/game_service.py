@@ -74,7 +74,7 @@ H. Limit particle effects to 30 active particles maximum. Remove dead particles 
 GARBAGE COLLECTION RULES — prevent GC stutter (smooth 60fps, no random micro-freezes):
 
 I. Never use Array.filter() or Array.map() inside the game loop. Instead, reuse arrays in-place: mark dead items as null, skip them during iteration, and overwrite slots when spawning new particles.
-J. Never create object literals ({x, y} or similar) inside the render or update loop. Pre-allocate coordinate arrays (e.g. positionsX[i], positionsY[i]) or use primitive variables.
+J. Never create object literals (the curly-brace x comma y pattern) inside the render or update loop. Pre-allocate coordinate arrays (e.g. positionsX i, positionsY i) or use primitive variables.
 K. Use ctx.setTransform() instead of ctx.save() / ctx.restore() for temporary coordinate shifts. save/restore copies the entire canvas state stack and creates GC pressure.
 
 Return HTML source directly.
@@ -121,7 +121,7 @@ H. Limit particle effects to 30 active particles maximum. Remove dead particles 
 GARBAGE COLLECTION RULES — prevent GC stutter (smooth 60fps, no random micro-freezes):
 
 I. Never use Array.filter() or Array.map() inside the game loop. Instead, reuse arrays in-place: mark dead items as null, skip them during iteration, and overwrite slots when spawning new particles.
-J. Never create object literals ({x, y} or similar) inside the render or update loop. Pre-allocate coordinate arrays (e.g. positionsX[i], positionsY[i]) or use primitive variables.
+J. Never create object literals (the curly-brace x comma y pattern) inside the render or update loop. Pre-allocate coordinate arrays (e.g. positionsX i, positionsY i) or use primitive variables.
 K. Use ctx.setTransform() instead of ctx.save() / ctx.restore() for temporary coordinate shifts. save/restore copies the entire canvas state stack and creates GC pressure.
 
 Return the complete improved HTML source directly.
