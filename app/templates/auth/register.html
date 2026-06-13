@@ -5,231 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注册 — 游戏梦工厂</title>
     <style>
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
-        .desktop-only{display:block}
-        .mobile-only{display:none}
-
-        body{font-family:"PingFang SC","Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh;min-height:100dvh;overflow-x:hidden;cursor:default;background:#e8f6f0}
-
-        .wall{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 140% 80% at 50% 30%,#e8f6f0 0%,#d4ede2 40%,#bde4d4 100%)}
-        .desk{position:fixed;inset:auto 0 0 0;height:22%;z-index:1;background:linear-gradient(175deg,#cee4d8 0%,#c2dcd0 3%,#b6d4c6 15%,#aaccc0 40%,#a0c4b6 70%,#96bcae 100%);border-top:1px solid rgba(255,255,255,0.5);box-shadow:0 -1px 0 rgba(255,255,255,0.28),0 -4px 20px rgba(100,140,120,0.1)}
-        .desk::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 8px,rgba(190,210,195,0.22) 8px,rgba(190,210,195,0.22) 9px),repeating-linear-gradient(90deg,transparent,transparent 120px,rgba(180,200,190,0.12) 120px,rgba(180,200,190,0.12) 121px);mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,0.3) 20%,rgba(0,0,0,0.5) 50%,rgba(0,0,0,0.6) 100%);-webkit-mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,0.3) 20%,rgba(0,0,0,0.5) 50%,rgba(0,0,0,0.6) 100%)}
-        .desk-edge{position:fixed;bottom:22%;left:0;right:0;height:2px;z-index:2;background:rgba(255,255,255,0.55);box-shadow:0 0 8px rgba(180,210,195,0.45)}
-        .sun-spot{position:fixed;bottom:8%;left:25%;width:500px;height:200px;z-index:1;background:radial-gradient(ellipse at center,rgba(255,255,255,0.1) 0%,transparent 70%);pointer-events:none;animation:sunShift 14s ease-in-out infinite}
-        @keyframes sunShift{0%,100%{transform:translate(0,0) scale(1);opacity:0.7}50%{transform:translate(40px,-10px) scale(1.1);opacity:1}}
-        .light-beam{position:fixed;pointer-events:none;z-index:0;width:700px;height:600px;top:-300px;left:-100px;background:conic-gradient(from 25deg at 15% 85%,rgba(255,255,255,0.08) 0deg,rgba(255,255,255,0.02) 15deg,transparent 30deg);animation:beamSway 10s ease-in-out infinite}
-        @keyframes beamSway{0%,100%{opacity:0.7;transform:rotate(-2deg)}50%{opacity:1;transform:rotate(1deg)}}
-        .fog-layer{position:fixed;pointer-events:none;z-index:1;bottom:6%;left:0;right:0;height:100px;background:radial-gradient(ellipse 80% 100% at 50% 100%,rgba(200,225,210,0.3) 0%,transparent 70%);animation:fogBreathe 8s ease-in-out infinite}
-        @keyframes fogBreathe{0%,100%{opacity:0.5}50%{opacity:0.8}}
-
-        .page{position:relative;z-index:10;min-height:100vh;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:30px;padding:60px 20px 80px}
-
-        .jar-container{flex-shrink:0;display:flex;flex-direction:column;align-items:center}
-        .magic-jar{position:relative;width:300px;height:370px;filter:drop-shadow(0 16px 32px rgba(90,130,110,0.2))}
-        .jar-body{position:absolute;inset:44px 18px 54px 18px;background:radial-gradient(ellipse 25% 60% at 22% 35%,rgba(255,255,255,0.48) 0%,transparent 60%),radial-gradient(ellipse 15% 45% at 78% 30%,rgba(255,255,255,0.26) 0%,transparent 55%),radial-gradient(ellipse 40% 30% at 65% 70%,rgba(200,240,220,0.13) 0%,transparent 60%),radial-gradient(ellipse 30% 25% at 35% 75%,rgba(210,235,225,0.08) 0%,transparent 60%),linear-gradient(180deg,rgba(255,255,255,0.3) 0%,rgba(255,255,255,0.11) 25%,rgba(255,255,255,0.05) 55%,rgba(255,255,255,0.16) 100%);border-radius:50%/42%;border:2px solid rgba(255,255,255,0.56);box-shadow:0 0 40px rgba(160,205,185,0.2) inset,0 0 80px rgba(175,220,200,0.08) inset,0 0 0 1px rgba(255,255,255,0.28) inset,0 8px 36px rgba(100,140,120,0.16);overflow:hidden;animation:jarBreathe 6s ease-in-out infinite}
-        @keyframes jarBreathe{0%,100%{box-shadow:0 0 40px rgba(160,205,185,0.2) inset,0 0 80px rgba(175,220,200,0.08) inset,0 0 0 1px rgba(255,255,255,0.28) inset,0 8px 36px rgba(100,140,120,0.16)}50%{box-shadow:0 0 55px rgba(165,210,190,0.3) inset,0 0 100px rgba(180,225,205,0.13) inset,0 0 0 1px rgba(255,255,255,0.38) inset,0 12px 44px rgba(100,140,120,0.24)}}
-        .jar-neck{position:absolute;top:26px;left:54px;right:54px;height:28px;z-index:2;background:linear-gradient(180deg,rgba(255,255,255,0.52),rgba(255,255,255,0.18),rgba(255,255,255,0.38));border-radius:12px 12px 6px 6px;border:1.5px solid rgba(255,255,255,0.48);box-shadow:0 2px 10px rgba(100,140,120,0.12),0 0 0 1px rgba(255,255,255,0.18) inset}
-        .jar-neck::after{content:"";position:absolute;top:2px;left:10px;right:10px;height:2px;background:rgba(255,255,255,0.65);border-radius:1px;box-shadow:0 0 4px rgba(255,255,255,0.35)}
-        .jar-lid{position:absolute;top:12px;left:46px;right:46px;height:26px;z-index:3;background:linear-gradient(180deg,#e2d2b0,#d9c7a4 15%,#ceba90 35%,#c3ae80 55%,#baa474 75%,#b39c68);border-radius:14px 14px 8px 8px;border:1px solid rgba(160,130,90,0.35);box-shadow:0 3px 10px rgba(90,65,30,0.18),0 1px 0 rgba(255,242,218,0.48) inset,0 -1px 0 rgba(255,242,218,0.22) inset}
-        .jar-lid::before{content:"";position:absolute;inset:4px 10px;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(170,140,100,0.16) 2px,rgba(170,140,100,0.16) 3px);border-radius:3px}
-        .jar-lid::after{content:"";position:absolute;top:2px;left:20%;right:20%;height:2px;background:rgba(255,242,218,0.48);border-radius:1px}
-        .jar-base{position:absolute;bottom:8px;left:12px;right:12px;height:48px;z-index:1;background:linear-gradient(175deg,#dcccac,#d2c0a0 15%,#c8b490 40%,#bea880 70%,#b49c70);border-radius:10px 10px 18px 18px;border:1px solid rgba(160,130,100,0.3);box-shadow:0 6px 20px rgba(80,55,25,0.16),0 1px 0 rgba(255,242,215,0.42) inset,0 -1px 3px rgba(160,130,100,0.22) inset}
-        .jar-base::before{content:"";position:absolute;top:8px;left:12px;right:12px;height:1px;background:rgba(190,160,120,0.22);border-radius:1px;box-shadow:0 1px 0 rgba(255,242,218,0.22)}
-        .jar-base::after{content:"";position:absolute;bottom:-8px;left:26px;width:20px;height:10px;background:linear-gradient(180deg,#c0a474,#b0905c);border-radius:0 0 5px 5px;box-shadow:90px 0 0 #c0a474,180px 0 0 #c0a474,45px 0 0 #bca070,135px 0 0 #bca070}
-        .jar-label{position:absolute;bottom:96px;left:48px;right:48px;height:44px;z-index:1;background:rgba(255,255,255,0.14);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(255,255,255,0.88);font-weight:700;letter-spacing:3px;text-shadow:0 1px 2px rgba(0,0,0,0.06);pointer-events:none}
-        .jar-world{position:absolute;inset:50px 20px 62px 20px;z-index:0}
-        .pixel-cloud{position:absolute;top:10px;left:42px}
-        .pixel-cloud .block{position:absolute;width:10px;height:8px;background:#fff;border-radius:3px;opacity:0.85;box-shadow:0 0 6px rgba(255,255,255,0.55),0 0 2px rgba(255,255,255,0.8)}
-        .b1{top:8px;left:6px}.b2{top:4px;left:14px}.b3{top:2px;left:22px}.b4{top:6px;left:30px}.b5{top:10px;left:38px;width:14px;height:10px}.b6{top:16px;left:10px;width:12px;height:8px}.b7{top:16px;left:26px;width:12px;height:8px}.b8{top:22px;left:18px;width:16px;height:7px}
-        .cloud-float{animation:cloudDrift 8s ease-in-out infinite}
-        @keyframes cloudDrift{0%,100%{transform:translate(0,0)}25%{transform:translate(18px,-8px)}50%{transform:translate(-5px,-14px)}75%{transform:translate(-12px,-3px)}}
-        .coaster-track{position:absolute;top:118px;left:34px}
-        .coaster-track svg{overflow:visible}
-        .coaster-track path{fill:none;stroke:rgba(255,255,255,0.42);stroke-width:3;stroke-dasharray:6 4;stroke-linecap:round;filter:drop-shadow(0 0 2px rgba(255,255,255,0.22));animation:trackShimmer 3s linear infinite}
-        @keyframes trackShimmer{0%{stroke-dashoffset:0}100%{stroke-dashoffset:-20}}
-        .coaster-cart{position:absolute;width:8px;height:6px;background:#c0e4d4;border-radius:2px;box-shadow:0 0 6px rgba(184,228,208,0.6),0 0 2px rgba(255,255,255,0.4)}
-        .dice-wrap{position:absolute;top:62px;right:30px;animation:diceFloat 5s ease-in-out infinite}
-        @keyframes diceFloat{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-15px) rotate(10deg)}66%{transform:translateY(-6px) rotate(-8deg)}}
-        .dice{width:26px;height:26px;background:linear-gradient(135deg,#fff,#f0f8f2,#e2f0e8,#d4e8dd);border-radius:5px;border:1px solid rgba(185,210,195,0.48);box-shadow:2px 3px 8px rgba(100,140,120,0.22),0 0 10px rgba(180,215,195,0.32),0 0 0 1px rgba(255,255,255,0.32) inset;position:relative}
-        .dice::after{content:"\2684";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;color:#a8c4b4}
-        .dice2{position:absolute;top:36px;left:24px;width:20px;height:20px;background:linear-gradient(135deg,#f5fffa,#e8f8f0,#d8f0e4,#c8e8d8);border-radius:4px;border:1px solid rgba(185,215,200,0.45);box-shadow:2px 2px 6px rgba(100,145,125,0.18),0 0 8px rgba(185,225,205,0.28);animation:diceFloat 4.5s ease-in-out infinite;animation-delay:-2s}
-        .dice2::after{content:"\2682";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#c0d4c8}
-        .code-star{position:absolute;color:rgba(140,195,170,0.65);font-family:"SF Mono","Fira Code","Consolas",monospace;font-size:10px;white-space:nowrap;text-shadow:0 0 8px rgba(160,215,190,0.5),0 0 20px rgba(170,210,190,0.35)}
-        .cs1{top:28px;left:14px;animation:starShoot 3.5s ease-in-out infinite}
-        .cs2{top:18px;right:14px;animation:starShoot 4.2s ease-in-out infinite;animation-delay:-1.5s;font-size:9px}
-        .cs3{top:90px;left:50%;animation:starShoot2 5s ease-in-out infinite;animation-delay:-3s}
-        @keyframes starShoot{0%,100%{transform:translate(0,0) scale(1);opacity:0.65}25%{transform:translate(28px,8px) scale(1.3);opacity:1}50%{transform:translate(56px,0) scale(0.75);opacity:0.22}75%{transform:translate(18px,-5px) scale(1);opacity:0.5}}
-        @keyframes starShoot2{0%,100%{transform:translate(0,0) scale(0.75);opacity:0.4}33%{transform:translate(-25px,-10px) scale(1.25);opacity:0.92}66%{transform:translate(-48px,2px) scale(0.6);opacity:0.16}}
-        .sparkle{position:absolute;width:3px;height:3px;background:#fff;border-radius:50%;animation:sparklePop 2.5s ease-in-out infinite;box-shadow:0 0 6px 2px rgba(255,255,255,0.65)}
-        @keyframes sparklePop{0%,100%{opacity:0.15;transform:scale(0.4)}50%{opacity:1;transform:scale(1.6)}}
-
-        .auth-card{position:relative;z-index:10;width:320px;padding:26px 28px;background:linear-gradient(175deg,rgba(255,255,255,0.48),rgba(255,255,255,0.34),rgba(245,252,248,0.3));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.5);border-radius:20px;box-shadow:0 10px 36px rgba(100,140,125,0.16),0 0 0 1px rgba(255,255,255,0.38) inset,0 3px 0 rgba(210,235,222,0.22) inset;animation:cardAppear 1s ease-out 0.3s both}
-        .auth-card::before{content:"";position:absolute;top:0;left:10px;right:10px;height:1px;background:rgba(255,255,255,0.5);border-radius:1px}
-        @keyframes cardAppear{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-        .auth-card h1{text-align:center;font-size:19px;font-weight:700;color:#42685a;margin-bottom:2px;letter-spacing:0.5px}
-        .auth-card .subtitle{text-align:center;font-size:12px;color:#7aaa98;margin-bottom:18px}
-        .flash{padding:7px 10px;border-radius:8px;font-size:11px;margin-bottom:10px;text-align:center}
-        .flash-error{background:rgba(239,68,68,0.05);color:#c44;border:1px solid rgba(239,68,68,0.12)}
-        .flash-success{background:rgba(34,197,94,0.05);color:#2a8;border:1px solid rgba(34,197,94,0.12)}
-        .field{margin-bottom:10px}
-        .field label{display:block;font-size:10px;font-weight:600;color:#7aaa98;margin-bottom:5px;text-transform:uppercase;letter-spacing:1px}
-        .field input{width:100%;padding:10px 12px;background:rgba(255,255,255,0.46);border:1px solid rgba(170,200,185,0.44);border-radius:10px;font-size:14px;font-family:inherit;color:#365a4a;outline:none;transition:all 0.3s}
-        .field input::placeholder{color:#a8c8b8}
-        .field input:focus{border-color:#a8d4c0;background:rgba(255,255,255,0.78);box-shadow:0 0 0 3px rgba(160,210,190,0.16)}
-        .btn-dream{width:100%;padding:11px;border:none;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;color:#fff;background:linear-gradient(135deg,#78b89e,#90c8b0,#a8d8c0,#78b89e);background-size:300% 300%;animation:btnShimmer 5s ease infinite;box-shadow:0 3px 16px rgba(100,170,140,0.28);transition:transform 0.2s,box-shadow 0.3s;letter-spacing:1.5px;margin-top:4px}
-        .btn-dream:hover{transform:translateY(-2px);box-shadow:0 5px 22px rgba(100,170,140,0.42)}
-        @keyframes btnShimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-        .auth-link{text-align:center;margin-top:12px;font-size:12px;color:#7aaa98}
-        .auth-link a{color:#6aaa90;text-decoration:none;font-weight:500}
-
-        @media(max-width:720px){
-            .magic-jar{width:240px;height:300px}
-            .jar-body{inset:36px 14px 44px 14px}
-            .jar-neck{top:22px;left:42px;right:42px;height:22px}
-            .jar-lid{top:10px;left:36px;right:36px;height:22px}
-            .jar-base{bottom:6px;left:10px;right:10px;height:40px}
-            .jar-base::after{left:20px;width:16px;height:8px;box-shadow:70px 0 0 #c0a474,140px 0 0 #c0a474,35px 0 0 #bca070,105px 0 0 #bca070}
-            .jar-label{bottom:76px;left:38px;right:38px;height:36px;font-size:11px;letter-spacing:2px}
-            .jar-world{inset:40px 16px 50px 16px}
-            .auth-card{width:300px;padding:22px 24px}
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #e8eaf6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        @media(max-width:480px){
-            .desktop-only{display:none}
-            .mobile-only{display:block}
+        .card {
+            width: 320px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px 24px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
         }
-
-        .mobile-card{min-height:100vh;min-height:100dvh;background:linear-gradient(135deg,#e8f6f0 0%,#d4ede2 40%,#bde4d4 100%);display:flex;align-items:center;justify-content:center;padding:20px}
-        .mobile-card-inner{width:100%;max-width:360px;background:#fff;border-radius:16px;padding:28px 22px;box-shadow:0 4px 24px rgba(0,0,0,0.05)}
-        .mobile-card-inner h1{text-align:center;font-size:20px;font-weight:700;color:#3a6058;margin-bottom:2px}
-        .mobile-card-inner .subtitle{text-align:center;font-size:13px;color:#7aaa98;margin-bottom:20px}
-        .mobile-card-inner .flash{padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:10px;text-align:center}
-        .mobile-card-inner .flash-error{background:#fef2f2;color:#c44;border:1px solid #fecaca}
-        .mobile-card-inner .flash-success{background:#f0fdf4;color:#2a8;border:1px solid #bbf7d0}
-        .mobile-card-inner .field{margin-bottom:12px}
-        .mobile-card-inner .field label{display:block;font-size:11px;font-weight:600;color:#5a8a78;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
-        .mobile-card-inner .field input{width:100%;padding:12px 14px;background:#f8fcfa;border:1px solid #d4e6dc;border-radius:10px;font-size:15px;font-family:inherit;color:#365a4a;outline:none;-webkit-appearance:none}
-        .mobile-card-inner .field input:focus{border-color:#88c8a8;background:#fff;box-shadow:0 0 0 3px rgba(130,195,165,0.12)}
-        .mobile-card-inner .btn-dream{width:100%;padding:13px;border:none;border-radius:10px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;color:#fff;background:linear-gradient(135deg,#78b89e,#90c8b0);box-shadow:0 3px 16px rgba(100,170,140,0.28);margin-top:4px}
-        .mobile-card-inner .auth-link{text-align:center;margin-top:14px;font-size:13px;color:#7aaa98}
-        .mobile-card-inner .auth-link a{color:#6aaa90;text-decoration:none;font-weight:500}
+        .card h1 {
+            text-align: center;
+            font-size: 20px;
+            color: #3b3b98;
+            margin: 0 0 4px;
+        }
+        .card .sub {
+            text-align: center;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+        .flash {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .flash-error { background: #fef2f2; color: #c44; }
+        .flash-success { background: #f0fdf4; color: #3a8; }
+        .field {
+            margin-bottom: 14px;
+        }
+        .field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        .field input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+        .field input:focus {
+            outline: none;
+            border-color: #7c4dff;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            background: #7c4dff;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+        .link {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 13px;
+            color: #888;
+        }
+        .link a { color: #7c4dff; text-decoration: none; }
     </style>
 </head>
 <body>
+    <div class="card">
+        <h1>🎮 游戏梦工厂</h1>
+        <p class="sub">领取魔盒 · 开始创造</p>
 
-    <div class="desktop-only">
-        <div class="wall"></div><div class="light-beam"></div><div class="desk"></div>
-        <div class="desk-edge"></div><div class="sun-spot"></div><div class="fog-layer"></div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
 
-        <div class="page">
-            <div class="jar-container">
-                <div class="magic-jar">
-                    <div class="jar-lid"></div><div class="jar-neck"></div>
-                    <div class="jar-body">
-                        <div class="jar-world">
-                            <div class="pixel-cloud cloud-float">
-                                <div class="block b1"></div><div class="block b2"></div><div class="block b3"></div><div class="block b4"></div>
-                                <div class="block b5"></div><div class="block b6"></div><div class="block b7"></div><div class="block b8"></div>
-                            </div>
-                            <div class="coaster-track" style="top:118px;left:34px;">
-                                <svg width="170" height="50" viewBox="0 0 170 50"><path d="M5,38 Q30,-8 50,22 Q75,45 95,12 Q115,-18 135,28 Q155,50 165,32"/></svg>
-                                <div class="coaster-cart" style="top:0;left:5px;"></div>
-                            </div>
-                            <div class="dice-wrap" style="top:104px;right:46px;"><div class="dice"></div></div>
-                            <div class="dice2" style="top:145px;right:62px;"></div>
-                            <span class="code-star cs1">< /></span>
-                            <span class="code-star cs2"><div></span>
-                            <span class="code-star cs3">/* css */</span>
-                            <div class="sparkle" style="top:40px;left:40%"></div>
-                            <div class="sparkle" style="top:65px;left:24%;animation-delay:-0.6s"></div>
-                            <div class="sparkle" style="top:55px;right:20%;animation-delay:-1.2s"></div>
-                            <div class="sparkle" style="top:125px;left:14%;animation-delay:-0.3s"></div>
-                        </div>
-                        <div class="jar-label">GAME FACTORY</div>
-                    </div>
-                    <div class="jar-base"></div>
-                </div>
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            <div class="field">
+                <label>用户名</label>
+                <input type="text" name="username" placeholder="取一个名字" required autofocus>
             </div>
-
-            <div class="auth-card">
-                <h1>游戏梦工厂</h1>
-                <p class="subtitle">领取魔盒 · 开始创造</p>
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                {% for category, message in messages %}
-                <div class="flash flash-{{ category }}">{{ message }}</div>
-                {% endfor %}
-                {% endif %}
-                {% endwith %}
-                <form method="POST" action="{{ url_for('auth.register') }}">
-                    <div class="field">
-                        <label>用户名</label>
-                        <input type="text" name="username" placeholder="取一个名字" required autofocus>
-                    </div>
-                    <div class="field">
-                        <label>密码</label>
-                        <input type="password" name="password" placeholder="至少 4 个字符" required>
-                    </div>
-                    <div class="field">
-                        <label>确认密码</label>
-                        <input type="password" name="password2" placeholder="再输一遍" required>
-                    </div>
-                    <button type="submit" class="btn-dream">注 册</button>
-                </form>
-                <p class="auth-link">已有魔盒？<a href="{{ url_for('auth.login') }}">打开它</a></p>
+            <div class="field">
+                <label>密码</label>
+                <input type="password" name="password" placeholder="至少 4 个字符" required>
             </div>
-        </div>
+            <div class="field">
+                <label>确认密码</label>
+                <input type="password" name="password2" placeholder="再输一遍" required>
+            </div>
+            <button type="submit" class="btn">注 册</button>
+        </form>
+
+        <p class="link">已有魔盒？<a href="{{ url_for('auth.login') }}">打开它</a></p>
     </div>
-
-    <div class="mobile-only">
-        <div class="mobile-card">
-            <div class="mobile-card-inner">
-                <h1>游戏梦工厂</h1>
-                <p class="subtitle">领取魔盒 · 开始创造</p>
-
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                {% for category, message in messages %}
-                <div class="flash flash-{{ category }}">{{ message }}</div>
-                {% endfor %}
-                {% endif %}
-                {% endwith %}
-
-                <form method="POST" action="{{ url_for('auth.register') }}">
-                    <div class="field">
-                        <label>用户名</label>
-                        <input type="text" name="username" placeholder="取一个名字" required autofocus>
-                    </div>
-                    <div class="field">
-                        <label>密码</label>
-                        <input type="password" name="password" placeholder="至少 4 个字符" required>
-                    </div>
-                    <div class="field">
-                        <label>确认密码</label>
-                        <input type="password" name="password2" placeholder="再输一遍" required>
-                    </div>
-                    <button type="submit" class="btn-dream">注 册</button>
-                </form>
-
-                <p class="auth-link">已有魔盒？<a href="{{ url_for('auth.login') }}">打开它</a></p>
-            </div>
-        </div>
-    </div>
-
-    <script>
-    (function cartLoop(){
-        var cart=document.querySelector('.coaster-cart');
-        if(!cart)return;
-        var phase=0;
-        setInterval(function(){
-            phase=(phase+0.7)%100;
-            var x=5+phase*1.6;
-            var y=Math.sin(phase*0.22)*13+14;
-            cart.style.transform='translate('+x+'px,'+y+'px)';
-        },50);
-    })();
-    </script>
-
 </body>
 </html>
