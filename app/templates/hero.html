@@ -5,257 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>网页游戏梦工厂 — 把你的想象变成游戏</title>
     <style>
-        /* ═══════════════════════════════════════════════
-           RESET
-           ═══════════════════════════════════════════ */
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        html { height: 100%; }
-        body {
+
+        html, body {
+            height: 100%;
             font-family: "PingFang SC","Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-            min-height: 100vh;
-            min-height: 100dvh;
-            cursor: default;
             -webkit-font-smoothing: antialiased;
-            background: #e8eaf6;
         }
 
-        /* ═══════════════════════════════════════════════
-           SKY — dreamy gradient canvas
-           ═══════════════════════════════════════════ */
-        .hero {
-            position: relative;
-            min-height: 100vh;
-            min-height: 100dvh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        body {
+            /* Fallback solid color — always renders */
+            background: #e8eaf6;
+            /* Layered gradients that degrade gracefully */
             background:
-                /* soft cloud blobs */
                 radial-gradient(ellipse 70% 55% at 20% 25%, #fce4ec 0%, transparent 55%),
                 radial-gradient(ellipse 60% 50% at 80% 30%, #e8eaf6 0%, transparent 55%),
                 radial-gradient(ellipse 55% 45% at 50% 70%, #e0f7fa 0%, transparent 55%),
                 radial-gradient(ellipse 65% 60% at 50% 40%, #f3e5f5 0%, #e8eaf6 40%, #e0f2f1 75%, #fce4ec 100%);
-            overflow: hidden;
-        }
-
-        /* subtle cloud wisps */
-        .cloud-wisp {
-            position: absolute;
-            pointer-events: none;
-            border-radius: 50%;
-            filter: blur(60px);
-            opacity: 0.35;
-        }
-        .cw1 { width:500px;height:200px;background:#fff;top:5%;left:-8%;animation:driftCloud 22s ease-in-out infinite;}
-        .cw2 { width:400px;height:160px;background:rgba(255,255,255,0.8);top:12%;right:-5%;animation:driftCloud 18s ease-in-out infinite;animation-delay:-8s;}
-        .cw3 { width:350px;height:140px;background:rgba(255,240,245,0.7);top:55%;left:25%;animation:driftCloud 20s ease-in-out infinite;animation-delay:-14s;}
-        .cw4 { width:300px;height:120px;background:rgba(240,245,255,0.7);top:65%;right:15%;animation:driftCloud 24s ease-in-out infinite;animation-delay:-5s;}
-        .cw5 { width:280px;height:110px;background:rgba(230,250,245,0.6);top:75%;left:60%;animation:driftCloud 21s ease-in-out infinite;animation-delay:-18s;}
-        @keyframes driftCloud {
-            0%,100%{transform:translate(0,0) scale(1)}
-            25%{transform:translate(45px,-20px) scale(1.12)}
-            50%{transform:translate(-20px,15px) scale(0.92)}
-            75%{transform:translate(-35px,-8px) scale(1.06)}
-        }
-
-        /* ═══════════════════════════════════════════════
-           FLOATING ELEMENTS — the playful stuff
-           ═══════════════════════════════════════════ */
-
-        .floater {
-            position: absolute;
-            pointer-events: none;
-            animation: floatUpDown var(--dur) ease-in-out infinite;
-            animation-delay: var(--del);
-        }
-        @keyframes floatUpDown {
-            0%,100%{transform:translateY(0) rotate(var(--rot,0deg))}
-            25%{transform:translateY(-18px) rotate(calc(var(--rot,0deg) + 3deg))}
-            50%{transform:translateY(-6px) rotate(calc(var(--rot,0deg) - 2deg))}
-            75%{transform:translateY(-22px) rotate(calc(var(--rot,0deg) + 1deg))}
-        }
-        /* horizontal drift too */
-        .floater-drift {
-            animation:
-                floatUpDown var(--dur) ease-in-out infinite,
-                driftX var(--dx-dur,14s) ease-in-out infinite;
-            animation-delay: var(--del), var(--dx-del,0s);
-        }
-        @keyframes driftX {
-            0%,100%{transform:translateX(0)}
-            50%{transform:translateX(var(--dx,20px))}
-        }
-
-        /* ── Pixel Cloud ── */
-        .pixel-cloud-el {
-            position: absolute;
-            top:10%; left:12%;
-            --dur:7s; --del:0s;
-        }
-        .pc-block {
-            position: absolute;
-            background: #fff;
-            border-radius: 4px;
-            box-shadow: 0 0 10px rgba(255,255,255,0.6), 0 0 2px rgba(255,255,255,0.9), 0 2px 8px rgba(180,190,210,0.25);
-        }
-        .p1{width:16px;height:12px;top:0;left:24px}
-        .p2{width:14px;height:10px;top:-6px;left:12px}
-        .p3{width:18px;height:14px;top:4px;left:38px}
-        .p4{width:14px;height:10px;top:10px;left:8px}
-        .p5{width:14px;height:10px;top:10px;left:42px}
-        .p6{width:20px;height:12px;top:14px;left:22px}
-        .p7{width:12px;height:8px;top:-10px;left:30px}
-
-        /* ── Dice ── */
-        .dice-el {
-            position: absolute;
-            top:18%; right:14%;
-            width:38px; height:38px;
-            background:linear-gradient(135deg,#fff 0%,#f5f0ff 30%,#e8e0f8 60%,#ddd4f0 100%);
-            border-radius:8px;
-            border:1.5px solid rgba(180,170,200,0.5);
-            box-shadow:3px 4px 12px rgba(130,120,160,0.22),0 0 14px rgba(210,200,230,0.35),0 0 0 1px rgba(255,255,255,0.5) inset;
-            display:flex;align-items:center;justify-content:center;
-            font-size:14px; color:#b8a8d0; font-weight:700;
-            animation: floatUpDown 6s ease-in-out infinite;
-        }
-        .dice-el::after { content:"⚄"; }
-        .dice-small {
-            position: absolute;
-            top:30%; right:20%;
-            width:26px; height:26px;
-            background:linear-gradient(135deg,#fff5f7 0%,#fde8f0 30%,#f8d8e4 60%,#f0c8d6 100%);
-            border-radius:6px;
-            border:1.2px solid rgba(225,190,200,0.5);
-            box-shadow:2px 3px 8px rgba(150,130,145,0.2),0 0 10px rgba(245,215,225,0.3);
-            display:flex;align-items:center;justify-content:center;
-            font-size:12px; color:#d8bcc8; font-weight:700;
-            animation: floatUpDown 7s ease-in-out infinite;
-            animation-delay:-2.5s;
-        }
-        .dice-small::after { content:"⚂"; }
-
-        /* ── Gamepad silhouette ── */
-        .gamepad-el {
-            position: absolute;
-            top:60%; left:8%;
-            width:70px; height:45px;
-            animation: floatUpDown 8s ease-in-out infinite;
-            animation-delay:-3s;
-        }
-        .gamepad-el svg { width:100%;height:100%; }
-        .gamepad-body {
-            fill: rgba(255,255,255,0.55);
-            stroke: rgba(180,190,210,0.4);
-            stroke-width: 2;
-        }
-
-        /* ── Little monster ── */
-        .monster-el {
-            position: absolute;
-            top:50%; right:10%;
-            animation: floatUpDown 7.5s ease-in-out infinite;
-            animation-delay:-1.5s;
-        }
-        .monster-body {
-            width:50px; height:42px;
-            background: linear-gradient(180deg, #c8e6c9 0%, #a5d6a7 100%);
-            border-radius: 25px 25px 20px 20px;
-            position: relative;
-            box-shadow: 0 3px 10px rgba(140,180,140,0.3);
-        }
-        .monster-body::before { content:""; position:absolute; top:-8px; left:6px; width:8px; height:8px; background:#556b5a; border-radius:50%; }
-        .monster-body::after { content:""; position:absolute; top:-8px; right:6px; width:8px; height:8px; background:#556b5a; border-radius:50%; }
-        .monster-mouth { position:absolute; bottom:8px; left:14px; right:14px; height:6px; border-bottom:2px solid #6a8b6e; border-radius:0 0 8px 8px; }
-        .monster-feet { display:flex; gap:8px; justify-content:center; margin-top:2px; }
-        .monster-feet span { width:14px;height:10px;background:#81c784;border-radius:0 0 7px 7px; }
-
-        /* ── Star sparkles ── */
-        .star-sparkle {
-            position: absolute;
-            animation: twinkleStar var(--s-dur,3s) ease-in-out infinite;
-            animation-delay: var(--s-del,0s);
-            opacity:0;
-        }
-        @keyframes twinkleStar {
-            0%,100%{opacity:0.25;transform:scale(0.6) rotate(0deg)}
-            50%{opacity:1;transform:scale(1.4) rotate(20deg)}
-        }
-
-        /* ── Bubble ── */
-        .bubble-el {
-            position: absolute;
-            border-radius: 50%;
-            background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.7), rgba(200,220,240,0.2));
-            border:1px solid rgba(255,255,255,0.5);
-            animation: floatUpDown 8.5s ease-in-out infinite;
-            animation-delay:-4s;
-        }
-
-        /* ── Code fragment ── */
-        .code-frag {
-            position: absolute;
-            font-family: "SF Mono","Fira Code","Consolas",monospace;
-            font-size:12px;
-            color: rgba(150,170,200,0.5);
-            white-space: nowrap;
-            animation: floatUpDown 9s ease-in-out infinite;
-            animation-delay:-6s;
-            text-shadow: 0 0 6px rgba(180,200,220,0.4);
-        }
-
-        /* ═══════════════════════════════════════════════
-           MAIN CONTENT — centered card
-           ═══════════════════════════════════════════ */
-
-        .hero-content {
-            position: relative;
-            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: 40px 20px;
             text-align: center;
-            padding: 40px 30px;
-            max-width: 680px;
-            width: 100%;
-            animation: contentIn 1.2s ease-out;
-        }
-        @keyframes contentIn {
-            from { opacity:0; transform:translateY(30px) }
-            to { opacity:1; transform:translateY(0) }
         }
 
-        /* decorative top icon */
+        /* ── Emblem ── */
         .hero-emblem {
-            display: inline-block;
             font-size: 56px;
-            margin-bottom: 8px;
-            animation: gentleBob 4s ease-in-out infinite;
-        }
-        @keyframes gentleBob {
-            0%,100%{transform:translateY(0)}
-            50%{transform:translateY(-10px)}
+            margin-bottom: 12px;
         }
 
-        /* Title */
+        /* ── Title ── */
         .hero-title {
-            font-size: clamp(36px, 7vw, 64px);
+            font-size: clamp(32px, 8vw, 64px);
             font-weight: 800;
             letter-spacing: -1px;
             line-height: 1.15;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            color: #5c6bc0;   /* solid fallback */
             background: linear-gradient(135deg, #5c6bc0, #7e57c2, #ab47bc, #5c6bc0);
             background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: titleShimmer 8s ease infinite;
+            /* Safari fallback — some versions need this */
         }
-        @keyframes titleShimmer {
-            0%,100%{background-position:0% 50%}
-            50%{background-position:100% 50%}
+        /* Ensure the title text is always visible even if gradient fails */
+        @supports not (-webkit-background-clip: text) {
+            .hero-title {
+                color: #5c6bc0;
+            }
         }
 
-        /* Subtitle */
+        /* ── Subtitle & Desc ── */
         .hero-subtitle {
-            font-size: clamp(15px, 2.5vw, 19px);
+            font-size: clamp(14px, 2.5vw, 19px);
             color: #7e8ba8;
             margin-bottom: 6px;
             font-weight: 400;
@@ -267,10 +74,9 @@
             margin-bottom: 36px;
             line-height: 1.7;
             max-width: 480px;
-            margin-left:auto;margin-right:auto;
         }
 
-        /* CTA Button */
+        /* ── CTA Button ── */
         .btn-create {
             display: inline-block;
             padding: 16px 48px;
@@ -279,262 +85,90 @@
             font-family: inherit;
             color: #fff;
             text-decoration: none;
-            border:none;
+            border: none;
             border-radius: 50px;
             cursor: pointer;
-            background: linear-gradient(135deg, #7c4dff, #b388ff, #7c4dff);
-            background-size: 200% 200%;
-            animation: btnGlow 4s ease infinite;
-            box-shadow:
-                0 6px 28px rgba(124,77,255,0.35),
-                0 0 60px rgba(179,136,255,0.15),
-                0 0 0 0 rgba(124,77,255,0.4);
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            background: #7c4dff;
+            box-shadow: 0 6px 28px rgba(124,77,255,0.35);
+            transition: all 0.3s;
             letter-spacing: 2px;
-        }
-        .btn-create::after {
-            content:"";
-            position:absolute;
-            inset:0;
-            background:linear-gradient(135deg, rgba(255,255,255,0.2), transparent 50%);
-            border-radius:50px;
-        }
-        .btn-create:hover {
-            transform: translateY(-4px) scale(1.03);
-            box-shadow:
-                0 12px 40px rgba(124,77,255,0.5),
-                0 0 80px rgba(179,136,255,0.25),
-                0 0 0 8px rgba(124,77,255,0.08);
+            -webkit-tap-highlight-color: transparent;
         }
         .btn-create:active {
-            transform: translateY(-1px) scale(0.98);
-            transition: all 0.1s;
-        }
-        @keyframes btnGlow {
-            0%,100%{background-position:0% 50%}
-            50%{background-position:100% 50%}
+            transform: scale(0.96);
         }
 
-        /* CTA helper text */
+        /* ── CTA hint ── */
         .cta-hint {
             margin-top: 14px;
             font-size: 12px;
             color: #bcc8dc;
             letter-spacing: 0.5px;
         }
-        .cta-hint span {
-            animation: bounceHint 1.5s ease-in-out infinite;
-            display: inline-block;
-        }
-        @keyframes bounceHint {
-            0%,100%{transform:translateY(0)}
-            50%{transform:translateY(-4px)}
-        }
 
-        /* ═══════════════════════════════════════════════
-           FEATURE PILLS — what you can create
-           ═══════════════════════════════════════════ */
+        /* ── Feature Pills ── */
         .feature-pills {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
             margin-top: 32px;
+            max-width: 500px;
         }
         .pill {
             padding: 8px 18px;
             border-radius: 20px;
             font-size: 13px;
             font-weight: 500;
-            background: rgba(255,255,255,0.55);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            border: 1px solid rgba(200,210,230,0.4);
+            background: rgba(255,255,255,0.7);
+            border: 1px solid rgba(200,210,230,0.5);
             color: #6a7b9a;
-            transition: all 0.3s;
-            animation: pillIn 0.6s ease-out both;
             white-space: nowrap;
         }
-        .pill:hover {
-            background: rgba(255,255,255,0.8);
-            transform: translateY(-2px);
-            border-color: #c4b5fd;
-            box-shadow: 0 4px 14px rgba(150,140,200,0.18);
-        }
-        .pill:nth-child(1){animation-delay:0.5s}
-        .pill:nth-child(2){animation-delay:0.6s}
-        .pill:nth-child(3){animation-delay:0.7s}
-        .pill:nth-child(4){animation-delay:0.8s}
-        .pill:nth-child(5){animation-delay:0.9s}
-        @keyframes pillIn {
-            from{opacity:0;transform:translateY(10px)}
-            to{opacity:1;transform:translateY(0)}
-        }
 
-        /* ═══════════════════════════════════════════════
-           RESPONSIVE
-           ═══════════════════════════════════════════ */
-        @media (max-width: 640px) {
-            .hero-content { padding: 30px 18px; }
-            .hero-title { font-size:34px;letter-spacing:-0.5px; }
-            .btn-create { padding:14px 36px;font-size:16px;letter-spacing:1px; }
-            .feature-pills { gap:7px;margin-top:24px; }
-            .pill { padding:6px 14px;font-size:12px; }
-            /* Scale down decorative elements */
-            .dice-el { width:28px;height:28px;font-size:12px;top:12%;right:8%; }
-            .dice-small { width:20px;height:20px;font-size:10px;top:22%;right:12%; }
-            .monster-body { width:38px;height:32px; }
-            .monster-el { top:55%;right:5%; }
-            .gamepad-el { width:50px;height:32px;top:65%;left:3%; }
-            .pixel-cloud-el { transform:scale(0.7);top:5%;left:5%; }
-            .code-frag { font-size:10px; }
-            /* Reduce cloud sizes on mobile */
-            .cw1 { width:300px;height:120px; }
-            .cw2 { width:250px;height:100px; }
-            .cw3 { width:220px;height:90px; }
-            .cw4 { width:200px;height:80px; }
-            .cw5 { width:180px;height:70px; }
-            /* Reduce filter blur for mobile performance */
-            .cloud-wisp { filter: blur(40px); }
-        }
-
-        @media (max-width: 380px) {
-            .hero-content { padding: 24px 14px; }
-            .hero-title { font-size:28px; }
-            .hero-emblem { font-size:42px; }
-            .btn-create { padding:14px 28px;font-size:15px;letter-spacing:0.5px; }
-            .hero-desc { font-size:13px;margin-bottom:24px; }
-            .feature-pills { gap:5px;margin-top:20px; }
-            .pill { padding:5px 10px;font-size:11px; }
-            .dice-el { display:none; }
-            .dice-small { display:none; }
-            .monster-el { display:none; }
-            .gamepad-el { display:none; }
-            .cw1 { width:200px;height:80px; }
-            .cw2 { width:180px;height:70px; }
-            .cw3, .cw4, .cw5 { display:none; }
+        /* ── Mobile ── */
+        @media (max-width: 480px) {
+            body { padding: 30px 16px; }
+            .hero-emblem { font-size: 42px; }
+            .btn-create { padding: 14px 36px; font-size: 16px; letter-spacing: 1px; }
+            .feature-pills { gap: 6px; margin-top: 24px; }
+            .pill { padding: 6px 12px; font-size: 12px; }
+            .hero-desc { margin-bottom: 28px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ═══════════════════════════════════════════
-         HERO SECTION
-         ═══════════════════════════════════════════ -->
-    <section class="hero">
+    <div class="hero-emblem">🎮</div>
+    <h1 class="hero-title">网页游戏<br>梦工厂</h1>
+    <p class="hero-subtitle">把你脑袋里的奇思妙想，变成一个能玩的游戏</p>
+    <p class="hero-desc">用自然语言告诉 AI 你想玩什么——贪吃蛇、飞机大战、塔防、跑酷……只需一句话，剩下的交给魔法。</p>
 
-        <!-- Cloud wisps -->
-        <div class="cloud-wisp cw1"></div>
-        <div class="cloud-wisp cw2"></div>
-        <div class="cloud-wisp cw3"></div>
-        <div class="cloud-wisp cw4"></div>
-        <div class="cloud-wisp cw5"></div>
+    <a href="/game/create" class="btn-create">✨ 开始创造</a>
+    <p class="cta-hint">免费，无需编程</p>
 
-        <!-- ══ FLOATING ELEMENTS ══ -->
+    <div class="feature-pills">
+        <span class="pill">🐍 贪吃蛇</span>
+        <span class="pill">✈️ 飞机大战</span>
+        <span class="pill">🏰 塔防</span>
+        <span class="pill">🏃 跑酷</span>
+        <span class="pill">🧱 俄罗斯方块</span>
+        <span class="pill">🔫 射击</span>
+        <span class="pill">🎯 更多……</span>
+    </div>
 
-        <!-- pixel cloud - upper left -->
-        <div class="floater pixel-cloud-el" style="--dur:7s;--del:0s;--rot:-3deg;">
-            <div class="pc-block p1"></div><div class="pc-block p2"></div>
-            <div class="pc-block p3"></div><div class="pc-block p4"></div>
-            <div class="pc-block p5"></div><div class="pc-block p6"></div>
-            <div class="pc-block p7"></div>
-        </div>
-
-        <!-- dice - upper right -->
-        <div class="dice-el"></div>
-        <div class="dice-small"></div>
-
-        <!-- gamepad - lower left -->
-        <div class="gamepad-el">
-            <svg viewBox="0 0 80 50">
-                <rect x="5" y="12" width="70" height="28" rx="14" class="gamepad-body"/>
-                <circle cx="24" cy="22" r="5" fill="rgba(180,195,215,0.35)"/>
-                <circle cx="46" cy="22" r="5" fill="rgba(180,195,215,0.35)"/>
-                <ellipse cx="35" cy="28" rx="6" ry="4" fill="rgba(180,195,215,0.3)"/>
-                <rect x="8" y="22" width="12" height="8" rx="4" fill="rgba(200,210,225,0.2)"/>
-                <rect x="60" y="22" width="12" height="8" rx="4" fill="rgba(200,210,225,0.2)"/>
-            </svg>
-        </div>
-
-        <!-- little monster - middle right -->
-        <div class="monster-el">
-            <div class="monster-body">
-                <div class="monster-mouth"></div>
-            </div>
-            <div class="monster-feet"><span></span><span></span></div>
-        </div>
-
-        <!-- stars scattered -->
-        <div class="star-sparkle" style="top:8%;left:25%;font-size:22px;--s-dur:3s;--s-del:0s;">✦</div>
-        <div class="star-sparkle" style="top:15%;left:70%;font-size:16px;--s-dur:3.5s;--s-del:0.8s;">✧</div>
-        <div class="star-sparkle" style="top:45%;left:5%;font-size:18px;--s-dur:4s;--s-del:1.6s;">⋆</div>
-        <div class="star-sparkle" style="top:35%;right:8%;font-size:14px;--s-dur:3.2s;--s-del:2.2s;">✧</div>
-        <div class="star-sparkle" style="top:75%;left:20%;font-size:15px;--s-dur:3.8s;--s-del:0.4s;">✦</div>
-        <div class="star-sparkle" style="top:68%;right:25%;font-size:20px;--s-dur:4.2s;--s-del:1.1s;">⋆</div>
-        <div class="star-sparkle" style="top:22%;left:45%;font-size:12px;--s-dur:3.1s;--s-del:2.8s;">✧</div>
-        <div class="star-sparkle" style="top:80%;right:6%;font-size:17px;--s-dur:3.6s;--s-del:0.2s;">✦</div>
-
-        <!-- bubbles -->
-        <div class="bubble-el" style="width:18px;height:18px;top:20%;left:35%;"></div>
-        <div class="bubble-el" style="width:12px;height:12px;top:55%;right:20%;animation-delay:-2s;"></div>
-        <div class="bubble-el" style="width:15px;height:15px;top:70%;left:15%;animation-delay:-5s;"></div>
-        <div class="bubble-el" style="width:10px;height:10px;top:28%;right:30%;animation-delay:-3.5s;"></div>
-
-        <!-- code fragments -->
-        <div class="code-frag" style="top:14%;left:55%;">{ game.start() }</div>
-        <div class="code-frag" style="top:42%;right:15%;animation-delay:-3s;">function createWorld()</div>
-        <div class="code-frag" style="top:78%;left:40%;animation-delay:-7s;font-size:10px;">const dream = new Game()</div>
-
-        <!-- ══ MAIN CONTENT ══ -->
-        <div class="hero-content">
-            <div class="hero-emblem">🎮</div>
-            <h1 class="hero-title">网页游戏<br>梦工厂</h1>
-            <p class="hero-subtitle">把你脑袋里的奇思妙想，变成一个能玩的游戏</p>
-            <p class="hero-desc">用自然语言告诉 AI 你想玩什么——贪吃蛇、飞机大战、塔防、跑酷……<br>只需一句话，剩下的交给魔法。</p>
-
-            <a href="/game/create" class="btn-create">✨ 开始创造</a>
-            <p class="cta-hint"><span>↑</span> 免费，无需编程</p>
-
-            <div class="feature-pills">
-                <span class="pill">🐍 贪吃蛇</span>
-                <span class="pill">✈️ 飞机大战</span>
-                <span class="pill">🏰 塔防</span>
-                <span class="pill">🏃 跑酷</span>
-                <span class="pill">🧱 俄罗斯方块</span>
-                <span class="pill">🔫 射击</span>
-                <span class="pill">🎯 更多……</span>
-            </div>
-        </div>
-
-    </section>
-
-    <!-- ══ tiny parallax on mouse ══ -->
     <script>
-    (function(){
-        var hero = document.querySelector('.hero');
-        if (!hero) return;
-
-        hero.addEventListener('mousemove', function(e){
-            var x = (e.clientX / window.innerWidth  - 0.5) * 12;
-            var y = (e.clientY / window.innerHeight - 0.5) * 12;
-            hero.style.setProperty('--mx', x + 'px');
-            hero.style.setProperty('--my', y + 'px');
-        });
-
-        // Keyboard Easter egg: press "G" to jump to create
-        document.addEventListener('keydown', function(e){
-            if (e.key === 'g' || e.key === 'G') {
-                var btn = document.querySelector('.btn-create');
-                if (btn) {
-                    btn.style.transform = 'scale(1.1)';
-                    setTimeout(function(){ btn.style.transform = ''; }, 200);
-                    btn.click();
-                }
+    // Keyboard Easter egg: press "G" to jump to create
+    document.addEventListener('keydown', function(e){
+        if (e.key === 'g' || e.key === 'G') {
+            var btn = document.querySelector('.btn-create');
+            if (btn) {
+                btn.style.transform = 'scale(1.1)';
+                setTimeout(function(){ btn.style.transform = ''; }, 200);
+                btn.click();
             }
-        });
-    })();
+        }
+    });
     </script>
 
 </body>
