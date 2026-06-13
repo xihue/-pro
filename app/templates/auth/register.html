@@ -5,35 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注册 — 游戏梦工厂</title>
     <style>
+        /* ═══════════════════════════════════════════
+           MOBILE FIRST — simple and reliable
+           ═══════════════════════════════════════════ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #e8eaf6;
+            font-family: "PingFang SC", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #eef7f2;
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
+
         .card {
-            width: 320px;
+            width: 100%;
+            max-width: 340px;
             background: #fff;
-            border-radius: 16px;
-            padding: 30px 24px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            border-radius: 20px;
+            padding: 32px 26px;
+            box-shadow: 0 4px 24px rgba(80, 140, 120, 0.08);
         }
+
+        .card .icon {
+            text-align: center;
+            font-size: 44px;
+            margin-bottom: 6px;
+        }
+
         .card h1 {
             text-align: center;
             font-size: 20px;
-            color: #3b3b98;
-            margin: 0 0 4px;
+            font-weight: 700;
+            color: #2d6a4f;
+            margin-bottom: 2px;
         }
+
         .card .sub {
             text-align: center;
             font-size: 13px;
-            color: #888;
-            margin-bottom: 20px;
+            color: #999;
+            margin-bottom: 22px;
         }
+
         .flash {
             padding: 8px 12px;
             border-radius: 8px;
@@ -41,8 +58,9 @@
             margin-bottom: 10px;
             text-align: center;
         }
-        .flash-error { background: #fef2f2; color: #c44; }
-        .flash-success { background: #f0fdf4; color: #3a8; }
+        .flash-error { background: #fef2f2; color: #d44; border: 1px solid #fecaca; }
+        .flash-success { background: #f0fdf4; color: #2a8; border: 1px solid #bbf7d0; }
+
         .field {
             margin-bottom: 14px;
         }
@@ -50,45 +68,177 @@
             display: block;
             font-size: 12px;
             font-weight: 600;
-            color: #666;
+            color: #5a7a6a;
             margin-bottom: 6px;
+            letter-spacing: 0.5px;
         }
         .field input {
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
+            padding: 11px 14px;
+            border: 1px solid #d8e8dc;
             border-radius: 10px;
             font-size: 15px;
-            box-sizing: border-box;
+            font-family: inherit;
+            color: #2a4a3a;
+            outline: none;
+            -webkit-appearance: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
         .field input:focus {
-            outline: none;
-            border-color: #7c4dff;
+            border-color: #52b788;
+            box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.1);
         }
+        .field input::placeholder { color: #b8d4c0; }
+
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 13px;
             border: none;
             border-radius: 10px;
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 700;
+            font-family: inherit;
             color: #fff;
-            background: #7c4dff;
+            background: #52b788;
             cursor: pointer;
+            letter-spacing: 1.5px;
             margin-top: 4px;
+            transition: transform 0.2s, box-shadow 0.3s;
         }
+        .btn:active { transform: scale(0.97); }
+
         .link {
             text-align: center;
-            margin-top: 14px;
+            margin-top: 16px;
             font-size: 13px;
-            color: #888;
+            color: #999;
         }
-        .link a { color: #7c4dff; text-decoration: none; }
+        .link a {
+            color: #52b788;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* 桌面端装饰 — 手机端隐藏 */
+        .deco { display: none; }
+
+        /* ═══════════════════════════════════════════
+           DESKTOP — forest / magic garden theme
+           ═══════════════════════════════════════════ */
+        @media (min-width: 768px) {
+            body {
+                background:
+                    radial-gradient(ellipse 50% 40% at 30% 25%, rgba(160, 210, 180, 0.2) 0%, transparent 50%),
+                    radial-gradient(ellipse 45% 35% at 70% 30%, rgba(180, 220, 200, 0.18) 0%, transparent 50%),
+                    radial-gradient(ellipse 55% 45% at 50% 70%, rgba(160, 200, 190, 0.15) 0%, transparent 50%),
+                    #eef7f2;
+                position: relative;
+            }
+
+            .card {
+                padding: 36px 30px;
+                box-shadow:
+                    0 8px 40px rgba(80, 140, 120, 0.1),
+                    0 0 0 1px rgba(255,255,255,0.5) inset;
+                position: relative;
+                z-index: 10;
+            }
+
+            .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 24px rgba(82, 183, 136, 0.4);
+            }
+
+            /* ── 漂浮装饰 ── */
+            .deco {
+                display: block;
+                position: absolute;
+                pointer-events: none;
+            }
+
+            @keyframes drift {
+                0%, 100% { transform: translate(0, 0); }
+                25% { transform: translate(15px, -10px); }
+                50% { transform: translate(-8px, -16px); }
+                75% { transform: translate(-12px, -3px); }
+            }
+            @keyframes bob {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-12px); }
+            }
+
+            .deco-star {
+                animation: twinkle 3.5s ease-in-out infinite;
+                position: absolute;
+                pointer-events: none;
+            }
+            @keyframes twinkle {
+                0%, 100% { opacity: 0.25; transform: scale(0.6); }
+                50% { opacity: 0.9; transform: scale(1.2); }
+            }
+
+            .deco-leaf {
+                top: 8%;
+                left: 12%;
+                animation: drift 7s ease-in-out infinite;
+            }
+            .deco-leaf .l {
+                position: absolute;
+                border-radius: 50%;
+                opacity: 0.6;
+            }
+            .l1 {
+                width: 18px; height: 12px;
+                background: rgba(160, 210, 180, 0.5);
+                top: 0; left: 10px;
+            }
+            .l2 {
+                width: 14px; height: 10px;
+                background: rgba(180, 220, 190, 0.45);
+                top: -5px; left: 22px;
+            }
+            .l3 {
+                width: 16px; height: 11px;
+                background: rgba(150, 200, 170, 0.5);
+                top: 8px; left: 28px;
+            }
+
+            .deco-gem {
+                top: 14%;
+                right: 14%;
+                width: 38px;
+                height: 38px;
+                background: linear-gradient(135deg, #fff, #e8f8f0, #d0f0e0);
+                border-radius: 50%;
+                border: 1.5px solid rgba(140, 200, 170, 0.45);
+                box-shadow: 2px 3px 12px rgba(80, 150, 120, 0.15);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+                color: #90c8b0;
+                animation: bob 6s ease-in-out infinite;
+            }
+            .deco-gem::after { content: "🌱"; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- 桌面端装饰 -->
+    <div class="deco deco-leaf">
+        <div class="l l1"></div><div class="l l2"></div><div class="l l3"></div>
+    </div>
+    <div class="deco deco-gem"></div>
+    <span class="deco-star" style="top: 6%; left: 30%; font-size: 16px; animation-delay: 0s;">✦</span>
+    <span class="deco-star" style="top: 20%; left: 70%; font-size: 13px; animation-delay: 0.8s;">✧</span>
+    <span class="deco-star" style="top: 52%; right: 10%; font-size: 14px; animation-delay: 1.6s;">⋆</span>
+    <span class="deco-star" style="top: 70%; left: 20%; font-size: 12px; animation-delay: 2.4s;">✧</span>
+    <span class="deco-star" style="top: 38%; left: 80%; font-size: 11px; animation-delay: 0.4s;">✦</span>
+
     <div class="card">
-        <h1>🎮 游戏梦工厂</h1>
+        <div class="icon">🎮</div>
+        <h1>游戏梦工厂</h1>
         <p class="sub">领取魔盒 · 开始创造</p>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -117,5 +267,6 @@
 
         <p class="link">已有魔盒？<a href="{{ url_for('auth.login') }}">打开它</a></p>
     </div>
+
 </body>
 </html>
