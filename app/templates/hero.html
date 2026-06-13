@@ -97,8 +97,8 @@
             white-space: nowrap;
         }
 
-        /* 漂浮元素 — 手机端隐藏，桌面端显示 */
-        .deco { display: none; }
+        /* 所有装饰元素 — 手机端隐藏 */
+        .deco, .star, .bubble, .code-frag { display: none; }
 
         /* ═══════════════════════════════════════════
            DESKTOP — fancy, playful, animated
@@ -298,19 +298,19 @@
         <div class="monster-feet"><span></span><span></span></div>
     </div>
 
-    <span class="star" style="top: 6%; left: 28%; font-size: 20px; --d: 3s; --dl: 0s;">✦</span>
-    <span class="star" style="top: 12%; left: 68%; font-size: 14px; --d: 3.5s; --dl: 0.6s;">✧</span>
-    <span class="star" style="top: 40%; left: 4%; font-size: 16px; --d: 3.8s; --dl: 1.2s;">⋆</span>
-    <span class="star" style="top: 55%; right: 6%; font-size: 18px; --d: 3.2s; --dl: 0.3s;">✦</span>
-    <span class="star" style="top: 70%; left: 22%; font-size: 13px; --d: 4s; --dl: 0.9s;">✧</span>
-    <span class="star" style="top: 75%; right: 22%; font-size: 15px; --d: 3.6s; --dl: 1.8s;">⋆</span>
+    <span class="deco star" style="top: 6%; left: 28%; font-size: 20px; --d: 3s; --dl: 0s;">✦</span>
+    <span class="deco star" style="top: 12%; left: 68%; font-size: 14px; --d: 3.5s; --dl: 0.6s;">✧</span>
+    <span class="deco star" style="top: 40%; left: 4%; font-size: 16px; --d: 3.8s; --dl: 1.2s;">⋆</span>
+    <span class="deco star" style="top: 55%; right: 6%; font-size: 18px; --d: 3.2s; --dl: 0.3s;">✦</span>
+    <span class="deco star" style="top: 70%; left: 22%; font-size: 13px; --d: 4s; --dl: 0.9s;">✧</span>
+    <span class="deco star" style="top: 75%; right: 22%; font-size: 15px; --d: 3.6s; --dl: 1.8s;">⋆</span>
 
-    <div class="bubble" style="width: 20px; height: 20px; top: 18%; left: 36%;"></div>
-    <div class="bubble" style="width: 14px; height: 14px; top: 50%; right: 18%; animation-delay: -2s;"></div>
-    <div class="bubble" style="width: 16px; height: 16px; top: 65%; left: 12%; animation-delay: -4s;"></div>
+    <div class="deco bubble" style="width: 20px; height: 20px; top: 18%; left: 36%;"></div>
+    <div class="deco bubble" style="width: 14px; height: 14px; top: 50%; right: 18%; animation-delay: -2s;"></div>
+    <div class="deco bubble" style="width: 16px; height: 16px; top: 65%; left: 12%; animation-delay: -4s;"></div>
 
-    <div class="code-frag" style="top: 14%; left: 52%;">{ game.start() }</div>
-    <div class="code-frag" style="top: 45%; right: 14%; animation-delay: -3s; font-size: 11px;">function createWorld()</div>
+    <div class="deco code-frag" style="top: 14%; left: 52%;">{ game.start() }</div>
+    <div class="deco code-frag" style="top: 45%; right: 14%; animation-delay: -3s; font-size: 11px;">function createWorld()</div>
 
     <!-- ══ 主内容 ══ -->
     <div class="emblem">🎮</div>
