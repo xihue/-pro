@@ -52,18 +52,30 @@ Generate a complete, playable HTML5 game.
 
 Requirements:
 
-1. Single-file HTML
-2. Inline CSS
-3. Inline JavaScript
-4. Game must be playable
-5. Start screen
-6. End screen
-7. Scoring system
-8. Nice visual design
-9. Use percentage/vw/vh for responsive Canvas/game area
-10. Put a short Chinese game name in the <title> tag
-11. No explanations
-12. No markdown code blocks
+1. Single-file HTML with inline CSS and JavaScript
+2. Game must be fully playable
+3. Start screen and end screen with scoring system
+4. Nice visual design
+5. Use percentage/vw/vh for responsive Canvas/game area
+6. Put a short Chinese game name in the <title> tag
+7. No explanations, no markdown code blocks
+
+PERFORMANCE RULES — the game must run smoothly at 60fps on both desktop and mobile:
+
+A. Use ONLY requestAnimationFrame for the game loop. Never use setInterval or setTimeout for game updates.
+B. Use delta-time (timestamp difference) to control game speed, not fixed intervals.
+C. Create all Canvas gradients (createRadialGradient, createLinearGradient) ONCE during initialization — never call them inside the render loop.
+D. Draw static elements (grid background, HUD frame) once to an offscreen canvas, then drawImage that canvas in the main loop instead of redrawing every element.
+E. Limit per-frame Canvas operations. No nested loops that iterate over hundreds of cells every frame.
+F. No CSS animations (transform, filter, opacity) on DOM elements that overlay the game Canvas while the game loop is running.
+G. On mobile devices, keep Canvas resolution at or below 400x400 pixels.
+H. Limit particle effects to 30 active particles maximum. Remove dead particles by marking their slot as null and reusing it — do NOT create a new array with .filter() every frame.
+
+GARBAGE COLLECTION RULES — prevent GC stutter (smooth 60fps, no random micro-freezes):
+
+I. Never use Array.filter() or Array.map() inside the game loop. Instead, reuse arrays in-place: mark dead items as null, skip them during iteration, and overwrite slots when spawning new particles.
+J. Never create object literals ({x, y} or similar) inside the render or update loop. Pre-allocate coordinate arrays (e.g. positionsX[i], positionsY[i]) or use primitive variables.
+K. Use ctx.setTransform() instead of ctx.save() / ctx.restore() for temporary coordinate shifts. save/restore copies the entire canvas state stack and creates GC pressure.
 
 Return HTML source directly.
 """
@@ -84,19 +96,33 @@ Here is the complete HTML source of the existing game:
 
 ## Task
 
-Modify the existing game code to implement the requested improvements. Do NOT rewrite from scratch.
+Modify the existing game code to implement the requested improvements. Do NOT rewrite from scratch — keep all original game features, only add/modify what the user requested.
 
 Requirements:
 1. Single-file HTML with inline CSS and JavaScript
-2. **Keep all original game features**, only add/modify what the user requested
-3. Game must be playable
-4. Start screen and end screen
-5. Scoring system
-6. Use percentage/vw/vh for responsive Canvas/game area
-7. Keep the original game name in the <title> tag
-8. Nice visual design
-9. **No explanations**
-10. **No markdown code blocks**
+2. Game must be playable
+3. Start screen and end screen with scoring
+4. Nice visual design
+5. Use percentage/vw/vh for responsive Canvas/game area
+6. Keep the original game name in the <title> tag
+7. **No explanations, no markdown code blocks**
+
+PERFORMANCE RULES — the game must run smoothly at 60fps on both desktop and mobile:
+
+A. Use ONLY requestAnimationFrame for the game loop. Never use setInterval or setTimeout for game updates.
+B. Use delta-time (timestamp difference) to control game speed, not fixed intervals.
+C. Create all Canvas gradients (createRadialGradient, createLinearGradient) ONCE during initialization — never call them inside the render loop.
+D. Draw static elements (grid background, HUD frame) once to an offscreen canvas, then drawImage that canvas in the main loop instead of redrawing every element.
+E. Limit per-frame Canvas operations. No nested loops that iterate over hundreds of cells every frame.
+F. No CSS animations (transform, filter, opacity) on DOM elements that overlay the game Canvas while the game loop is running.
+G. On mobile devices, keep Canvas resolution at or below 400x400 pixels.
+H. Limit particle effects to 30 active particles maximum. Remove dead particles by marking their slot as null and reusing it — do NOT create a new array with .filter() every frame.
+
+GARBAGE COLLECTION RULES — prevent GC stutter (smooth 60fps, no random micro-freezes):
+
+I. Never use Array.filter() or Array.map() inside the game loop. Instead, reuse arrays in-place: mark dead items as null, skip them during iteration, and overwrite slots when spawning new particles.
+J. Never create object literals ({x, y} or similar) inside the render or update loop. Pre-allocate coordinate arrays (e.g. positionsX[i], positionsY[i]) or use primitive variables.
+K. Use ctx.setTransform() instead of ctx.save() / ctx.restore() for temporary coordinate shifts. save/restore copies the entire canvas state stack and creates GC pressure.
 
 Return the complete improved HTML source directly.
 """
